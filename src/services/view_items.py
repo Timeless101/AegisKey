@@ -134,7 +134,7 @@ def select_item_flow(data: list, userid: int) -> str:
     id_choice: int = view_interface.ask_item_id()
     clear_screen()
 
-    view_item_data = data_handler(data=data, choice=id_choice)
+    view_item_data = data_handler(data=data, choice=id_choice, userid=userid)
 
     if view_item_data is None:
         error_messages.print_option_out_of_range()

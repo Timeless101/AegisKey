@@ -83,7 +83,6 @@ def search_specific_data(table: str, column: str, data_to_be_searched: str, data
     except sqlite3.OperationalError as table_error:
         raise errors.TableError(f"No such table: {table}") from table_error
 
-
 def searcher(table: str, columns: list, column: tuple, data_to_search: str, database_name: str, userid: int) -> list[tuple] | None:
 
     try:
