@@ -1,4 +1,5 @@
 from src.interface.search_interface import screen_handler_with_options, screen_handler_search
+import src.storage.storage_logic as storage_logic
 from src.storage.database_logic import search_for_search_view
 from src.services.pagination import Pagination
 
@@ -25,11 +26,17 @@ def search_database(to_search: str, userid: int):
         userid=userid
     )
 
+def search_view(userid: int, limit: int):
+    return storage_logic.search_limited_amount_of_items_in_database(
+        limit=5,
+        userid=userid
+    )
+
 def search_main(total_cred: int, userid):
     pag = Pagination()
-    while True:
-        output = screen_handler_search(total_credentials=total_cred, data=data)
-        search_database(to_search=output, userid=userid)
+    while True: 
+        output = screen_handler_search(total_credentials=total_cred, data=search_view(userid=userid))
+        db_data = search_database(to_search=output, userid=userid)
 
     """to_search = search_screen()
     data = search_database(to_search=to_search, userid=userid)
