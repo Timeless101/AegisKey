@@ -115,28 +115,46 @@ def searcher(table: str, columns: list, column: tuple, data_to_search: str, data
     except sqlite3.Error as e:
         raise errors.DatabaseError(e)
 
-def search_for_search_view(to_search: str, database: str, userid: int):
+def search_for_search_view(to_search: str, database: str, userid: int, limit: int, offset: int):
     try:
-        query = f"""SELECT
-                        row_number() OVER( 
-                            PARTITION BY UserID
-                            ORDER BY Service COLLATE NOCASE ASC
-                            ) AS screen_number_ID,
-                        *
-                    FROM vault_storage WHERE Service LIKE ? AND Userid = ?
-                    OR Username LIKE ? AND Userid = ?
-                    OR Comment LIKE ? AND userid = ?"""
+        query = f"""
+                SELECT
+                    row_number() OVER( 
+                        PARTITION BY UserID
+                        ORDER BY Service COLLATE NOCASE ASC,
+                                Username COLLATE NOCASE ASC
+                        ) AS screen_number_ID,
+                    cred_id,
+                    Service,
+                    Username,
+                    Comment,
+                    CreationDate,
+                    EditedDate
+                FROM vault_storage 
+
+                WHERE
+                    Userid = ?
+                    AND(
+                        Service LIKE ?
+                        OR Username LIKE ?
+                        OR Comment LIKE ?
+                    )
+                ORDER BY service COLLATE NOCASE ASC, 
+                        Username COLLATE NOCASE ASC
+                LIMIT ? 
+                OFFSET ?;
+                """
         to_search = "%" + to_search + "%"
 
         with sqlite3.connect(database) as connection:
             c = connection.cursor()
-            c.execute(query, (to_search, userid, to_search, userid, to_search, userid))
+            c.execute(query, (userid, to_search, to_search, to_search, limit, offset))
             searched_data = c.fetchall()
 
         if len(searched_data) == 0:
             return None
 
-        return searched_data #screen_number, cred_id, Userid, Service, Username, Password, Comment, CreationDate, EditedDate
+        return searched_data #screen_number, cred_id, Service, Username, Comment, CreationDate, EditedDate
     
     except sqlite3.ProgrammingError as Programmers_fault:
         raise errors.WrongSQLStatement("The SQL statements are wrong, please check the query you wrote.") from Programmers_fault
