@@ -2,6 +2,7 @@ from rich.table import Table
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
+from time import sleep
 
 CONSOLE = Console()
 
@@ -37,9 +38,11 @@ def main_view(data: list):
 
     asterisk = "*" * 8
 
+#screen_number, cred_id, Service, Username, Comment, CreationDate, EditedDate
+
     for item in data:
-        items_id, _, service, username, comment, editdate = item
-        table.add_row(str(items_id), service, username, asterisk, comment, editdate)
+        screen_number_id, _, service, username, comment, editedDate = item
+        table.add_row(str(screen_number_id), service, username, asterisk, comment, editedDate)
 
     CONSOLE.print(table)
 

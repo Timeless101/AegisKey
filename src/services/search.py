@@ -79,9 +79,10 @@ class Test:
         )
 
     def search_view(self, userid: int) -> list[tuple]:
-        return storage_logic.search_limited_amount_of_items_in_database(
-            limit=5,
-            userid=userid
+        return storage_logic.get_screen_data(
+            page_size=5,
+            userid=userid,
+            offset=0
         )
 
     def second_screen(self, db_data):
