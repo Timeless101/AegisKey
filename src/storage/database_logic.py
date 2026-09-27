@@ -155,15 +155,16 @@ def search_interface_password_id(userid: int, database: str, limit: int) -> list
         SELECT
             ROW_NUMBER() OVER(
             PARTITION BY UserID
-            ORDER by EditedDate COLLATE NOCASE DESC
-        ) AS screen_number_ID,
+            ) AS screen_number_ID ,
 
         Service,
         Username,
         EditedDate
-
+        
         FROM vault_storage
-        WHERE UserID = ? LIMIT ?;"""
+        WHERE UserID = ?
+        ORDER by EditedDate DESC
+        LIMIT ?;"""
 
         with sqlite3.connect(database) as connection:
             c = connection.cursor()
