@@ -229,13 +229,13 @@ def search_for_view_items(userid: int, limit: int, offset: int, database) -> lis
         raise errors.UnexpectedError(f"There was a unexpected error: {Error}")
 
 
-def delete_item(database: str, table: str, cred_id: int) -> bool:
+def delete_item(database: str, table: str, cred_id: int, userid: int) -> bool:
     try:
-        query = f"DELETE FROM {table} WHERE cred_id = ?"
+        query = f"DELETE FROM {table} WHERE cred_id = ? AND userid = ?"
 
         with sqlite3.Connection(database) as connection:
             c = connection.cursor()
-            c.execute(query, (cred_id,))
+            c.execute(query, (cred_id, userid))
             return True
 
     except sqlite3.ProgrammingError as Programmers_fault:

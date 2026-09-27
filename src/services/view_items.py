@@ -43,12 +43,13 @@ def get_cred_id(data: list[tuple], choice: int) -> int:
             return item[1]
         continue
 
-def view_password(encryption_key: bytes, cred_id: int) -> str:
+def view_password(encryption_key: bytes, cred_id: int, userid: int) -> str:
     password = database_logic.search_specific_data(
                 database_name="CLI_Data.db",
                 table="vault_storage",
                 column="cred_id",
-                data_to_be_searched=cred_id
+                data_to_be_searched=cred_id,
+                userid=userid
             )
 
     return password_decryption(encryption_key=encryption_key, password=password[0][4])
@@ -111,7 +112,7 @@ def password_item_flow(str_choice: str, encryption_key: bytes, userid: int, cred
         case "r":
             if confirmation_prompt(text="\n[bright_cyan]Are you sure you want to reveal the password?[/]") == "y":
                 clear_screen()
-                password = view_password(encryption_key=encryption_key, cred_id=cred_id)
+                password = view_password(encryption_key=encryption_key, cred_id=cred_id, userid=userid)
                 while True:
                     clear_screen()
                     if view_interface.view_password_plain_handeler(data=data, password=password) == "c":
@@ -125,7 +126,7 @@ def password_item_flow(str_choice: str, encryption_key: bytes, userid: int, cred
 
         case "d":
             if confirmation_prompt(text="\n:warning:[bright_cyan] Are you sure you want to delete this item?[/]:warning:") == "y":
-                delete_item(cred_id=cred_id)
+                delete_item(cred_id=cred_id, userid=userid)
             pass
 
 def select_item_flow(data: list, userid: int) -> str:
@@ -156,12 +157,13 @@ def open_item(data: list, encryption_key: bytes, userid: int) -> bool:
     password_item_flow(str_choice=str_choice, encryption_key=encryption_key, userid=userid, cred_id=cred_id)
 
 
-def delete_item(cred_id: int) -> bool:
+def delete_item(cred_id: int, userid: int) -> bool:
     try:
         if database_logic.delete_item(
         database="CLI_Data.db",
         table="vault_storage",
-        cred_id=cred_id
+        cred_id=cred_id,
+        userid=userid
         ):
             return True
     except errors.WrongSQLStatement:
