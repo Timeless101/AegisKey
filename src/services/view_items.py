@@ -47,12 +47,12 @@ def view_password(encryption_key: bytes, cred_id: int, userid: int) -> str:
 
     password = storage_logic.searcher(
         columns=["Password",],
-        column=(cred_id,),
+        column=("cred_id",),
         data_to_search=cred_id,
         userid=userid
     )
 
-    return password_decryption(encryption_key=encryption_key, password=password[0][4])
+    return password_decryption(encryption_key=encryption_key, password=password[0][0])
 
 def show_screen_with_data_get_option(data: list, total_cred: int, current_page:int , total_pages: int, showing_items_end: int, showing_items_start: int):
     option: str = view_interface.screen_handler(
