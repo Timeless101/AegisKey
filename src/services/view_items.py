@@ -12,16 +12,6 @@ from src.storage.storage_logic import searcher
 from src.services.pagination import Pagination
 from time import sleep
 
-#Helper Functions
-def get_screen_data(userid: int, page_size: int, offset: int) -> list[tuple]:
-    data_rows = database_logic.search_for_view_items(
-        userid=userid,
-        limit=page_size,
-        offset=offset,
-        database="CLI_Data.db"
-    )
-    return data_rows
-
 def data_handler(data: list[tuple], choice: int, userid: int) -> tuple:
     cred_id = get_cred_id(data=data, choice=choice)
 
@@ -70,7 +60,7 @@ def menu_flow(userid: int, total_cred: int, encryption_key: bytes) -> str:
     pag = Pagination(total_cred=total_cred, page_size= 5)
     while True:
         clear_screen()
-        data = get_screen_data(userid=userid, page_size=pag.page_size, offset=pag.offset)
+        data = storage_logic.get_screen_data(userid=userid, page_size=pag.page_size, offset=pag.offset)
 
         option = show_screen_with_data_get_option(
             data=data,

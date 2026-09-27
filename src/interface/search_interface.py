@@ -63,8 +63,23 @@ def options(total_cred: int, current_page:int, max_page: int, showing_items_end:
 
     return Prompt.ask("\n[bright_cyan]Option[/]", choices=["P", "B", "N", "#"], case_sensitive=False, show_choices=False)
 
+def footer():
+    table = Table.grid(expand= True)
+        
+    table.add_column(justify="center", no_wrap=True)
 
-def screen_handler(data: list, total_credentials: int, current_page: int, max_page: int, showing_items_end: int, showing_items_start: int) -> str:
+    table.add_row("Search by service, username or comment.")
+    panel = Panel(
+        table,
+        width=70,
+        padding= (0, 1)
+    )
+
+    CONSOLE.print(panel)
+
+    return input("Search: ")
+
+def screen_handler_with_options(data: list, total_credentials: int, current_page: int, max_page: int, showing_items_end: int, showing_items_start: int) -> str:
 
     if data is None:
         main_header(total_credentials=total_credentials)
@@ -86,7 +101,16 @@ def screen_handler(data: list, total_credentials: int, current_page: int, max_pa
 
     return option
 
+def screen_handler_search(data: list, total_credentials: int) -> str:
 
-def test():
-    to_search = input("Search for service, username or comment\n:")
-    return to_search
+    if data is None:
+        main_header(total_credentials=total_credentials)
+        option_no_items = items_none().lower()
+        return option_no_items
+
+    main_header(total_credentials=total_credentials)
+    CONSOLE.print("\n:lock: [bold bright_cyan]CREDENTIALS [/]\n")
+    main_view(data=data)
+    print("\n")
+
+    return footer().lower()

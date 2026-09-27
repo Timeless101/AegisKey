@@ -147,3 +147,13 @@ def update_database_item(cred_id: int, userid: int, column: str, new_data: str, 
         new_date=new_date
     ):
         return True
+
+#Helper Functions
+def get_screen_data(userid: int, page_size: int, offset: int) -> list[tuple]:
+    data_rows = database_logic.search_for_view_items(
+        userid=userid,
+        limit=page_size,
+        offset=offset,
+        database=DATABASE_NAME
+    )
+    return data_rows

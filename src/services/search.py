@@ -1,4 +1,4 @@
-from src.interface.search_interface import screen_handler, test
+from src.interface.search_interface import screen_handler_with_options, screen_handler_search
 from src.storage.database_logic import search_for_search_view
 from src.services.pagination import Pagination
 
@@ -26,13 +26,21 @@ def search_database(to_search: str, userid: int):
     )
 
 def search_main(total_cred: int, userid):
+    pag = Pagination()
     while True:
-        to_search = search_screen()
-        data = search_database(to_search=to_search, userid=userid)
+        output = screen_handler_search(total_credentials=total_cred, data=data)
+        search_database(to_search=output, userid=userid)
 
-        if data is None:
-            continue
+    """to_search = search_screen()
+    data = search_database(to_search=to_search, userid=userid)
+    screen_handler(
+        data=data,
+        total_credentials=total_cred,
+        current_page=1,
+        max_page=1,
+        showing_items_start=5,
+        showing_items_end=1,
+    )"""
 
-        for item in data:
-            print(item)
-        input()
+    
+    
