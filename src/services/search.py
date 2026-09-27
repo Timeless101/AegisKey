@@ -4,6 +4,7 @@ from src.storage.database_logic import search_for_search_view
 from src.services.pagination import Pagination
 from src.services.view_items import open_item
 from src.common.helper_functions import clear_screen
+from time import sleep
 
 """def search_database(to_search: str, userid: int, limit: int, offset: int):
     return search_for_search_view(
@@ -86,7 +87,7 @@ class Test:
         )
 
     def second_screen(self, db_data):
-        screen_handler_with_options(
+        return screen_handler_with_options(
             data=db_data,
             total_credentials=self.total_cred,
             current_page=self.pag.current_page,

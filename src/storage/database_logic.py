@@ -128,7 +128,6 @@ def search_for_search_view(to_search: str, database: str, userid: int, limit: in
                     Service,
                     Username,
                     Comment,
-                    CreationDate,
                     EditedDate
                 FROM vault_storage 
 
