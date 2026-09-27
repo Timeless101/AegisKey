@@ -125,8 +125,8 @@ def search_for_search_view(to_search: str, database: str, userid: int):
                         *
                     FROM vault_storage WHERE Service LIKE ? AND Userid = ?
                     OR Username LIKE ? AND Userid = ?
-                    OR Comment = ? AND userid = ?"""
-        to_search = "%" + to_search
+                    OR Comment LIKE ? AND userid = ?"""
+        to_search = "%" + to_search + "%"
 
         with sqlite3.connect(database) as connection:
             c = connection.cursor()
