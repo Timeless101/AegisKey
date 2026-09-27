@@ -1,7 +1,6 @@
 from src.interface.search_interface import screen_handler, test
 from src.storage.database_logic import search_for_search_view
 from src.services.pagination import Pagination
-import time
 
 
 

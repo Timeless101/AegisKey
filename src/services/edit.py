@@ -15,11 +15,17 @@ def update_password(column: str, cred_id: int, userid: int, encryption_key: byte
 
         if awnser.lower() not in ("y", "yes"):
             continue
+
+        password_encrypted = crypto.password_encryption(
+            encryption_key=encryption_key,
+            password=new_data
+        )
+
         storage_logic.update_database_item(
                             cred_id=cred_id,
                             userid=userid,
                             column=column,
-                            new_data=new_data,
+                            new_data=password_encrypted,
                             new_date=datetime.now().replace(microsecond=0)
                             
         )

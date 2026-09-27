@@ -66,13 +66,13 @@ def insert_data(table_name: str, column_name: list, data_insert: list, database_
         raise errors.InsertError(f"Couldn't insert data") from sql_error
     
 #Search data in datebase.
-def search_specific_data(table: str, column: str, data_to_be_searched: str, database_name: str) -> list | None:
+def search_specific_data(table: str, column: str, data_to_be_searched: str, database_name: str, userid) -> list | None:
     try:
-        query = f"SELECT * FROM {table} WHERE {column} = ?"
+        query = f"SELECT * FROM {table} WHERE {column} = ? AND userid = ?"
         value = data_to_be_searched
         with sqlite3.connect(database_name) as connection:
             c = connection.cursor()
-            c.execute(query, (value,))
+            c.execute(query, (value, userid))
             rows = c.fetchall()
 
         if len(rows) == 0:
@@ -124,12 +124,14 @@ def search_for_search_view(to_search: str, database: str, userid: int):
                             ORDER BY Service COLLATE NOCASE ASC
                             ) AS screen_number_ID,
                         *
-                    FROM vault_storage WHERE Service LIKE ? OR Username LIKE ? AND Userid = ?"""
-        to_search = to_search + "%"
+                    FROM vault_storage WHERE Service LIKE ? AND Userid = ?
+                    OR Username LIKE ? AND Userid = ?
+                    OR Comment = ? AND userid = ?"""
+        to_search = "%" + to_search
 
         with sqlite3.connect(database) as connection:
             c = connection.cursor()
-            c.execute(query, (to_search, to_search, userid))
+            c.execute(query, (to_search, userid, to_search, userid, to_search, userid))
             searched_data = c.fetchall()
 
         if len(searched_data) == 0:

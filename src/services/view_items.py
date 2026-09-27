@@ -9,6 +9,7 @@ from src.common.helper_functions import clear_screen, print_copy, confirmation_p
 from src.services.add_items import add_main
 from src.storage.storage_logic import searcher
 from src.services.pagination import Pagination
+from time import sleep
 
 #Helper Functions
 def get_screen_data(userid: int, page_size: int, offset: int) -> list[tuple]:
@@ -20,14 +21,15 @@ def get_screen_data(userid: int, page_size: int, offset: int) -> list[tuple]:
     )
     return data_rows
 
-def data_handler(data: list[tuple], choice: int ) -> tuple:
+def data_handler(data: list[tuple], choice: int, userid: int) -> tuple:
     cred_id = get_cred_id(data=data, choice=choice)
 
     data = database_logic.search_specific_data(
             database_name="CLI_Data.db",
             table="vault_storage",
             column="cred_id",
-            data_to_be_searched=cred_id
+            data_to_be_searched=cred_id,
+            userid=userid
         )
 
     if data is None:
@@ -91,7 +93,8 @@ def menu_flow(userid: int, total_cred: int, encryption_key: bytes) -> str:
                 continue
 
             case "#":
-                open_item(data=data, encryption_key=encryption_key, userid=userid)
+                if not open_item(data=data, encryption_key=encryption_key, userid=userid):
+                    continue
 
             case "a":
                 add_main(userid=userid, encryption_key=encryption_key)
@@ -125,20 +128,24 @@ def password_item_flow(str_choice: str, encryption_key: bytes, userid: int, cred
                 delete_item(cred_id=cred_id)
             pass
 
-def select_item_flow(data: list) -> str:
+def select_item_flow(data: list, userid: int) -> str:
+
     id_choice: int = view_interface.ask_item_id()
     clear_screen()
-    view_item_data, cred_id = data_handler(data=data, choice=id_choice)
+
+    view_item_data = data_handler(data=data, choice=id_choice)
 
     if view_item_data is None:
         error_messages.print_option_out_of_range()
+        sleep(2.5)
         return False
 
+    view_item_data, cred_id = view_item_data
     return view_interface.view_password_handler(data=view_item_data), id_choice, cred_id
 
 #Item Operations
 def open_item(data: list, encryption_key: bytes, userid: int) -> bool:
-    result = select_item_flow(data=data)
+    result = select_item_flow(data=data, userid=userid)
     if result is False:
         return False
 
