@@ -1,5 +1,6 @@
 import pyperclip
 import src.storage.database_logic as database_logic
+import src.storage.storage_logic as storage_logic
 import src.interface.error_messages as error_messages
 import src.interface.view_interface as view_interface
 import src.common.errors as errors
@@ -24,18 +25,17 @@ def get_screen_data(userid: int, page_size: int, offset: int) -> list[tuple]:
 def data_handler(data: list[tuple], choice: int, userid: int) -> tuple:
     cred_id = get_cred_id(data=data, choice=choice)
 
-    data = database_logic.search_specific_data(
-            database_name="CLI_Data.db",
-            table="vault_storage",
-            column="cred_id",
-            data_to_be_searched=cred_id,
-            userid=userid
-        )
+    data = storage_logic.searcher(
+        columns=["service", "username", "comment", "creationdate", "editeddate"],
+        column="cred_id",
+        data_to_search=cred_id,
+        userid=userid
+    )
 
     if data is None:
         return None
 
-    return (data[0][2], data[0][3], data[0][5], data[0][6], data[0][7]), cred_id # returns service, username, comment, creationdate, editeddate.
+    return data, cred_id # returns .
 
 def get_cred_id(data: list[tuple], choice: int) -> int:
     for item in data:
