@@ -27,7 +27,7 @@ def data_handler(data: list[tuple], choice: int, userid: int) -> tuple:
 
     data = storage_logic.searcher(
         columns=["service", "username", "comment", "creationdate", "editeddate"],
-        column="cred_id",
+        column=("cred_id",),
         data_to_search=cred_id,
         userid=userid
     )
@@ -44,13 +44,13 @@ def get_cred_id(data: list[tuple], choice: int) -> int:
         continue
 
 def view_password(encryption_key: bytes, cred_id: int, userid: int) -> str:
-    password = database_logic.search_specific_data(
-                database_name="CLI_Data.db",
-                table="vault_storage",
-                column="cred_id",
-                data_to_be_searched=cred_id,
-                userid=userid
-            )
+
+    password = storage_logic.searcher(
+        columns=["Password",],
+        column=(cred_id,),
+        data_to_search=cred_id,
+        userid=userid
+    )
 
     return password_decryption(encryption_key=encryption_key, password=password[0][4])
 
