@@ -32,14 +32,13 @@ def get_all_items_in_database(userid) -> None | int:
     except errors.TableError as table_error:
         raise errors.TableError(f"No such table: vault_storage") from table_error
 
-def search_data(table_name: str, table_column: str, data_to_be_searched: str, userid) -> list | None:
+def search_data(table_name: str, table_column: str, data_to_be_searched: str) -> list | None:
     try:
         data:  list | None = database_logic.search_specific_data(
                 database_name=DATABASE_NAME,
                 table=table_name,
                 column=table_column,
                 data_to_be_searched=data_to_be_searched,
-                userid=userid
                 )
 
         if data is None:

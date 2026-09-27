@@ -66,13 +66,13 @@ def insert_data(table_name: str, column_name: list, data_insert: list, database_
         raise errors.InsertError(f"Couldn't insert data") from sql_error
     
 #Search data in datebase.
-def search_specific_data(table: str, column: str, data_to_be_searched: str, database_name: str, userid) -> list | None:
+def search_specific_data(table: str, column: str, data_to_be_searched: str, database_name: str) -> list | None:
     try:
-        query = f"SELECT * FROM {table} WHERE {column} = ? AND userid = ?"
+        query = f"SELECT * FROM {table} WHERE {column} = ?"
         value = data_to_be_searched
         with sqlite3.connect(database_name) as connection:
             c = connection.cursor()
-            c.execute(query, (value, userid))
+            c.execute(query, (value,))
             rows = c.fetchall()
 
         if len(rows) == 0:
