@@ -6,6 +6,34 @@ from time import sleep
 
 CONSOLE = Console()
 
+def items_none() -> str:
+
+    empty_vault = ":information: [bold yellow]No recent passwords added[/] :information:"
+    panel1 = Panel(
+        empty_vault,
+        width=70
+    )
+    CONSOLE.print(panel1,"\n")
+
+    table = Table.grid(expand= True)
+        
+    table.add_column(justify="left", no_wrap=True)
+    table.add_column(justify="center", no_wrap=True)
+    table.add_column(justify="right", no_wrap=True)
+
+    table.add_row("[bright_green][A] Add credential[/]")
+    table.add_row("", "", "")
+    table.add_row("[yellow][B] Back[/]")
+    panel = Panel(
+        table,
+        width=70,
+        padding= (0, 1)
+    )
+    
+    CONSOLE.print(panel)
+
+    return input()
+
 def main_header(total_credentials: int) -> None:
     table = Table.grid(expand= True)
 
