@@ -5,7 +5,7 @@ from src.services.pagination import Pagination
 from src.services.view_items import open_item
 from src.common.helper_functions import clear_screen
 
-class Test:
+class Search_flow:
     def __init__(self, total_cred: int, page_size: int, userid: int,):
         self.pag = Pagination(total_cred=total_cred, page_size=page_size)
         self.userid = userid
@@ -53,22 +53,22 @@ class Test:
 
 
 def search_main(total_cred: int, userid):
-    t = Test(total_cred=total_cred, userid=userid, page_size= 5)
+    search = Search_flow(total_cred=total_cred, userid=userid, page_size= 5)
 
     while True:
         clear_screen()
-        db_data = t.first_screen()
+        db_data = search.first_screen()
 
         clear_screen()
-        output = t.second_screen(db_data=db_data)
+        output = search.second_screen(db_data=db_data)
 
         match output:
 
             case "n":
-                t.next_page()
+                search.next_page()
 
             case "p":
-                t.previous_page()
+                search.previous_page()
 
             case "s":
                 continue
