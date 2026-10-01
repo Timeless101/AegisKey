@@ -11,7 +11,7 @@ class Search_flow:
         self.userid = userid
         self.total_cred = total_cred
 
-
+    @property
     def first_screen(self):
         output = screen_handler_search(total_credentials=self.total_cred, data=self.search_view(userid=self.userid))
         return self.search_database(to_search=output, userid=self.userid, limit=self.pag.page_size, offset=self.pag.offset)
@@ -62,20 +62,23 @@ def search_main(total_cred: int, userid):
         clear_screen()
         output = search.second_screen(db_data=db_data)
 
-        match output:
+        while True:
+            match output:
 
-            case "n":
-                search.next_page()
+                case "n":
+                    search.next_page()
 
-            case "p":
-                search.previous_page()
+                case "p":
+                    search.previous_page()
 
-            case "s":
-                continue
+                case "s":
+                    break
 
-            case "b":
-                break
+                case "b":
+                    break
 
-            case "#":
-                open_item()
+                case "#":
+                    open_item()
+        if output == "b":
+            break
     return "s"
