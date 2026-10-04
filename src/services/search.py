@@ -5,7 +5,6 @@ from src.services.pagination import Pagination
 from src.services.view_items import open_item
 from src.common.helper_functions import clear_screen
 
-
 class Search_flow:
     def __init__(self, total_cred: int, userid: int, page_size: int, ):
         self.pag = Pagination(total_cred=total_cred, page_size=page_size)
@@ -15,12 +14,8 @@ class Search_flow:
                                     offset=0
                                 )
         self.page_size = self.pag.page_size
-        self.offset = self.pag.offset
-        self.current_page = self.pag.current_page
         self.total_pages = self.pag.total_pages
-        self.showing_start = self.pag.showing_items_start
-        self.showing_end = self.pag.showing_items_end
-        
+        self.state = False
 
     def next_page(self):
         self.pag.next_page()
@@ -36,8 +31,22 @@ class Search_flow:
             self.state == False
 
     @property
-    def state(state):
-        return state
+    def current_page(self):
+        return self.pag.current_page
+
+    @property
+    def offset(self):
+        return self.pag.offset
+
+    @property
+    def showing_start(self):
+        return self.pag.showing_items_start
+
+    @property
+    def showing_end(self):
+        return self.pag.showing_items_end
+
+    
 
 def search_database(to_search: str, userid: int, page_size: int, offset: int, ):
         return search_for_search_view(
@@ -57,12 +66,15 @@ def search_main(total_cred: int, userid):
     while True:
         if search.state == True:
             return "s"
+        
         clear_screen()
+
         user_search_output = screen_handler_search(total_credentials=total_cred, data=first_screen_data)
         if user_search_output == "":
             break
 
         while True:
+            clear_screen()
             db_data = search_database(
                         to_search=user_search_output,
                         userid=userid,
