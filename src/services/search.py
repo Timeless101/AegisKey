@@ -4,10 +4,12 @@ from src.storage.database_logic import search_for_search_view
 from src.services.pagination import Pagination
 from src.services.view_items import open_item
 from src.common.helper_functions import clear_screen
+from src.services.add_items import add_main
 
 class Search_flow:
-    def __init__(self, total_cred: int, userid: int, page_size: int, ):
-        self.pag = Pagination(total_cred=total_cred, page_size=page_size)
+    def __init__(self, userid: int, page_size: int, ):
+        self.total_cred = 100
+        self.pag = Pagination(total_cred=self.get_total_cred, page_size=page_size)
         self.search_main_view_data = storage_logic.get_screen_data(
                                     page_size=5,
                                     userid=userid,
@@ -46,10 +48,15 @@ class Search_flow:
     def showing_end(self):
         return self.pag.showing_items_end
 
-    
+
+    def get_total_cred(self):
+        return self.total_cred
+
+    def set_total_cred(self, new_total:int):
+        self.total_cred = new_total
 
 def search_database(to_search: str, userid: int, page_size: int, offset: int, ):
-        return search_for_search_view(
+        data = search_for_search_view(
             to_search=to_search,
             database="CLI_Data.db",
             userid=userid,
@@ -57,11 +64,15 @@ def search_database(to_search: str, userid: int, page_size: int, offset: int, ):
             offset=offset
         )
 
+        total_cred = len(data)
+
+        return data, total_cred
+
 
 def search_main(total_cred: int, userid):
-    search = Search_flow(total_cred=total_cred, userid=userid, page_size=5)
+    search = Search_flow(userid=userid, page_size=5)
+    search.set_total_cred(total_cred=total_cred)
     first_screen_data = search.search_main_view_data
-    
 
     while True:
         if search.state == True:
@@ -75,16 +86,16 @@ def search_main(total_cred: int, userid):
 
         while True:
             clear_screen()
-            db_data = search_database(
+            db_data, search_total_cred = search_database(
                         to_search=user_search_output,
                         userid=userid,
                         page_size=search.page_size,
                         offset=search.offset
                         )
-
+            search.set_total_cred(int(search_total_cred))
             user_option = screen_handler_with_options(
                 data=db_data,
-                total_credentials=total_cred,
+                total_credentials=search_total_cred,
                 current_page=search.current_page,
                 max_page=search.total_pages,
                 showing_items_end=search.showing_end,
@@ -111,6 +122,10 @@ def search_main(total_cred: int, userid):
                 case "#":
                     open_item()
                     break
+
+                case "a":
+                    add_main()
+                    continue
 
 """
 S typed in main view; 
