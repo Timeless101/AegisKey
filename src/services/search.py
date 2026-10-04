@@ -7,94 +7,132 @@ from src.common.helper_functions import clear_screen
 
 
 class Search_flow:
-    def __init__(self, total_cred: int, page_size: int, userid: int,):
+    def __init__(self, total_cred: int, userid: int, page_size: int, ):
         self.pag = Pagination(total_cred=total_cred, page_size=page_size)
-        self.userid = userid
-        self.total_cred = total_cred
-
-
-    def first_screen(self):
-        output = screen_handler_search(total_credentials=self.total_cred, data=self.search_view(userid=self.userid))
-        return self.search_database(to_search=output)
-
+        self.search_main_view_data = storage_logic.get_screen_data(
+                                    page_size=5,
+                                    userid=userid,
+                                    offset=0
+                                )
+        self.page_size = self.pag.page_size
+        self.offset = self.pag.offset
+        self.current_page = self.pag.current_page
+        self.total_pages = self.pag.total_pages
+        self.showing_start = self.pag.showing_items_start
+        self.showing_end = self.pag.showing_items_end
+        
 
     def next_page(self):
         self.pag.next_page()
-        return self.search_database()
 
 
     def previous_page(self):
         self.pag.previous_page()
-        return self.search_database()
 
+    def state_function(self, state):
+        if state == True:
+            self.state == True
+        if state == False:
+            self.state == False
 
-    def search_database(self, to_search: str):
+    @property
+    def state(state):
+        return state
+
+def search_database(to_search: str, userid: int, page_size: int, offset: int, ):
         return search_for_search_view(
             to_search=to_search,
             database="CLI_Data.db",
-            userid=self.userid,
-            limit=self.pag.page_size,
-            offset=self.pag.offset
-        )
-
-    def search_view(self, userid: int) -> list[tuple]:
-        return storage_logic.get_screen_data(
-            page_size=5,
             userid=userid,
-            offset=0
-        )
-
-
-    def second_screen(self, db_data):
-        return screen_handler_with_options(
-            data=db_data,
-            total_credentials=self.total_cred,
-            current_page=self.pag.current_page,
-            max_page=self.pag.total_pages,
-            showing_items_start=self.pag.showing_items_start,
-            showing_items_end=self.pag.showing_items_end,
+            limit=page_size,
+            offset=offset
         )
 
 
 def search_main(total_cred: int, userid):
-    search = Search_flow(total_cred=total_cred, userid=userid, page_size= 5)
+    search = Search_flow(total_cred=total_cred, userid=userid, page_size=5)
+    first_screen_data = search.search_main_view_data
+    
 
     while True:
+        if search.state == True:
+            return "s"
         clear_screen()
-        db_data = search.first_screen()
+        user_search_output = screen_handler_search(total_credentials=total_cred, data=first_screen_data)
+        if user_search_output == "":
+            break
 
-        clear_screen()
-        output = search.second_screen(db_data=db_data)
+        while True:
+            db_data = search_database(
+                        to_search=user_search_output,
+                        userid=userid,
+                        page_size=search.page_size,
+                        offset=search.offset
+                        )
 
-        match output:
+            user_option = screen_handler_with_options(
+                data=db_data,
+                total_credentials=total_cred,
+                current_page=search.current_page,
+                max_page=search.total_pages,
+                showing_items_end=search.showing_end,
+                showing_items_start=search.showing_start
+            )
 
-            case "n":
-                pass
+            match user_option:
 
-            case "p":
-                pass
+                case "n":
+                    search.next_page()
+                    continue
 
-            case "s":
-                pass
+                case "p":
+                    search.previous_page()
+                    continue
 
-            case "b":
-                pass
+                case "s":
+                    break
 
-            case "#":
-                pass
+                case "b":
+                    search.state_function(state=True)
+                    break
+
+                case "#":
+                    open_item()
+                    break
 
 """
-S typed: Search screen is show;
-screen is waiting for input from user;
-input will go to database;
-database gets the data;
-the data will go to the screen;
+S typed in main view; 
+data needs to be search for the search screen main view 5 entrys; class is initiated, self.search_main_data search for screen data.
+dat is geven to the screen; screen_handler_search(data=first_screen_data)
+screen is show with the data; main_view()
+screen is waiting for input from user; screen_handler_search() is called -> what to be searched.
+input will go to database; db_data = search.search_database(to_search=screen_handler_search(data=first_screen_data))
+database gets the data; search_database -> return the database data
+the data will go to the screen; screen_handler_with_options -> returns the user_option.
+
+
 the screen shows the data with limit 5 (so 5 items will be shown)
 user chooses a option: N or P;
 then screen give the input back;
 The match tree wil see what match;
-N is choosen, so screen wil get the data;
+N is choose;
+input is handeld and given back;
+get the data;
 then it wil give the data to the screen;
-
-
+screen shows the data;
+and waits for new input.
+P is choosen;
+input is handeld and given back;
+get the data;
+then it wil give the data to the screen;
+screen shows the data;
+and waits for new input.
+s is choosen;
+input is handeld and given back;
+get the data to show for search screen;
+gives the data to the screen;
+shows the search screen with the data and wait for input;
+search is done;
+gets back to the search result screen;
+repead.
 """
