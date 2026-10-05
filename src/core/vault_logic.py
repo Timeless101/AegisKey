@@ -34,7 +34,7 @@ def option_handler(choice: str, userid: int, encryption_key: bytes, total_cred: 
     dispatch_table = {
         "a": lambda: add_main(userid, encryption_key),
         "v": lambda: menu_flow(userid, total_cred, encryption_key),
-        "s": lambda: search_main(total_cred=total_cred, userid=userid),
+        "s": lambda: search_main(total_cred=total_cred, userid=userid, encryption_key=encryption_key),
         "q": option_q
     }
     func = dispatch_table.get(choice)

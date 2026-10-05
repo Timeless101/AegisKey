@@ -52,6 +52,8 @@ class Search_flow:
     def showing_end(self):
         return self.pag.showing_items_end
 
+    def reset_state(self):
+        self.pag.reset_state()
 
     def get_total_cred(self):
         return self.total_cred
@@ -71,16 +73,20 @@ def search_database(to_search: str, userid: int, page_size: int, offset: int, ):
         return data
 
 def search_total_result(to_search: str, userid: int):
-    return len(search_for_search_view(
+    data = search_for_search_view(
                 to_search=to_search,
                 database="CLI_Data.db",
                 userid=userid,
                 limit=None,
                 offset=0
-            ) 
-    )
+            )
 
-def search_main(total_cred: int, userid):
+    if data is None:
+        return 0
+    
+    return len(data)
+
+def search_main(total_cred: int, userid, encryption_key: bytes):
     search = Search_flow(userid=userid, page_size=5)
     search.set_total_cred(new_total=total_cred)
     first_screen_data = search.search_main_view_data
@@ -130,6 +136,7 @@ def search_main(total_cred: int, userid):
                     continue
 
                 case "s":
+                    search.reset_state()
                     break
 
                 case "b":
@@ -137,7 +144,7 @@ def search_main(total_cred: int, userid):
                     break
 
                 case "#":
-                    open_item()
+                    open_item(data=db_data, encryption_key=encryption_key, userid=userid)
                     break
 
                 case "a":
