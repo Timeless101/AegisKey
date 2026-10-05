@@ -25,9 +25,9 @@ class Search_flow:
 
     def state_function(self, state):
         if state == True:
-            self.state == True
+            self.state = True
         if state == False:
-            self.state == False
+            self.state = False
 
     @property
     def current_page(self):
@@ -69,13 +69,17 @@ def search_database(to_search: str, userid: int, page_size: int, offset: int, ):
             offset=offset
         )
 
-        if data is None:
-            total_cred = 0
-        else:
-            total_cred = len(data)
+        return data
 
-        return data, total_cred
-
+def search_total_result(to_search: str, userid: int):
+    return len(search_for_search_view(
+                to_search=to_search,
+                database="CLI_Data.db",
+                userid=userid,
+                limit=None,
+                offset=0
+            ) 
+    )
 
 def search_main(total_cred: int, userid):
     search = Search_flow(userid=userid, page_size=5)
@@ -94,14 +98,21 @@ def search_main(total_cred: int, userid):
 
         while True:
             clear_screen()
+            search_total_cred = search_total_result(
+                to_search=user_search_output,
+                userid=userid
+            )
 
-            db_data, search_total_cred = search_database(
+            db_data = search_database(
                         to_search=user_search_output,
                         userid=userid,
                         page_size=search.page_size,
                         offset=search.offset
                         )
-            
+            for _ in db_data:
+                print(_)
+            import time
+            time.sleep(5)
             search.set_total_cred(search_total_cred)
             user_option = screen_handler_with_options(
                 data=db_data,

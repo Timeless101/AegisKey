@@ -114,41 +114,28 @@ def searcher(table: str, columns: list, column: tuple, data_to_search: str, data
 
     except sqlite3.Error as e:
         raise errors.DatabaseError(e)
-
+import time
 def search_for_search_view(to_search: str, database: str, userid: int, limit: int, offset: int):
+    print(f"limit: {limit}\noffset: {offset}")
+    time.sleep(5)
     try:
-        query = f"""
-                SELECT
-                    row_number() OVER( 
-                        PARTITION BY UserID
-                        ORDER BY Service COLLATE NOCASE ASC,
-                                Username COLLATE NOCASE ASC
-                        ) AS screen_number_ID,
-                    cred_id,
-                    Service,
-                    Username,
-                    Comment,
-                    EditedDate
-                FROM vault_storage 
-
-                WHERE
-                    Userid = ?
-                    AND(
-                        Service LIKE ?
-                        OR Username LIKE ?
-                        OR Comment LIKE ?
-                    )
-                ORDER BY service COLLATE NOCASE ASC, 
-                        Username COLLATE NOCASE ASC
-                LIMIT ? 
-                OFFSET ?;
-                """
         to_search = "%" + to_search + "%"
-
-        with sqlite3.connect(database) as connection:
-            c = connection.cursor()
-            c.execute(query, (userid, to_search, to_search, to_search, limit, offset))
-            searched_data = c.fetchall()
+        query = ""
+        if limit is None:
+            print("i used the wrong one")
+            
+            time.sleep(5)
+            query = search_without_limit()
+            with sqlite3.connect(database) as connection:
+                    c = connection.cursor()
+                    c.execute(query, (userid, to_search, to_search, to_search))
+                    searched_data = c.fetchall()
+        else:
+            query = search_with_limit()
+            with sqlite3.connect(database) as connection:
+                    c = connection.cursor()
+                    c.execute(query, (userid, to_search, to_search, to_search, limit, offset))
+                    searched_data = c.fetchall()
 
         if len(searched_data) == 0:
             return None
@@ -163,6 +150,60 @@ def search_for_search_view(to_search: str, database: str, userid: int, limit: in
 
     except sqlite3.Error as Error:
         raise errors.UnexpectedError(f"There was a unexpected error: {Error}")
+
+def search_with_limit():
+    return f"""
+                    SELECT
+                        row_number() OVER( 
+                            PARTITION BY UserID
+                            ORDER BY Service COLLATE NOCASE ASC,
+                                    Username COLLATE NOCASE ASC
+                            ) AS screen_number_ID,
+                        cred_id,
+                        Service,
+                        Username,
+                        Comment,
+                        EditedDate
+                    FROM vault_storage 
+    
+                    WHERE
+                        Userid = ?
+                        AND(
+                            Service LIKE ?
+                            OR Username LIKE ?
+                            OR Comment LIKE ?
+                        )
+                    ORDER BY service COLLATE NOCASE ASC, 
+                            Username COLLATE NOCASE ASC
+                    LIMIT ? 
+                    OFFSET ?;
+                    """
+
+def search_without_limit():
+    return f"""
+                    SELECT
+                        row_number() OVER( 
+                            PARTITION BY UserID
+                            ORDER BY Service COLLATE NOCASE ASC,
+                                    Username COLLATE NOCASE ASC
+                            ) AS screen_number_ID,
+                        cred_id,
+                        Service,
+                        Username,
+                        Comment,
+                        EditedDate
+                    FROM vault_storage 
+    
+                    WHERE
+                        Userid = ?
+                        AND(
+                            Service LIKE ?
+                            OR Username LIKE ?
+                            OR Comment LIKE ?
+                        )
+                    ORDER BY service COLLATE NOCASE ASC, 
+                            Username COLLATE NOCASE ASC
+                    """
 
 def search_interface_password_id(userid: int, database: str, limit: int) -> list[tuple] | None:
 
