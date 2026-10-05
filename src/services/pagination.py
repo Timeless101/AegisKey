@@ -7,8 +7,10 @@ class Pagination():
         self.current_page: int = 1
         self.page_size: int = page_size
         self.offset: int = 0
-
-        self.total_pages: int = math.ceil(total_cred / self.page_size)
+    
+    @property
+    def total_pages(self):
+        return math.ceil(self.total_cred / self.page_size)
 
     @property
     def showing_items_start(self) -> int:

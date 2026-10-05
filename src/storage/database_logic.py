@@ -114,17 +114,13 @@ def searcher(table: str, columns: list, column: tuple, data_to_search: str, data
 
     except sqlite3.Error as e:
         raise errors.DatabaseError(e)
-import time
+
 def search_for_search_view(to_search: str, database: str, userid: int, limit: int, offset: int):
-    print(f"limit: {limit}\noffset: {offset}")
-    time.sleep(5)
+
     try:
         to_search = "%" + to_search + "%"
         query = ""
         if limit is None:
-            print("i used the wrong one")
-            
-            time.sleep(5)
             query = search_without_limit()
             with sqlite3.connect(database) as connection:
                     c = connection.cursor()

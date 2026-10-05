@@ -8,8 +8,7 @@ from src.services.add_items import add_main
 
 class Search_flow:
     def __init__(self, userid: int, page_size: int, ):
-        self.total_cred = 0
-        self.pag = Pagination(total_cred=self.get_total_cred(), page_size=page_size)
+        self.pag = Pagination(total_cred=0, page_size=page_size)
         self.search_main_view_data = storage_logic.get_screen_data(
                                     page_size=5,
                                     userid=userid,
@@ -58,7 +57,7 @@ class Search_flow:
         return self.total_cred
 
     def set_total_cred(self, new_total:int):
-        self.total_cred = new_total
+        self.pag.total_cred = new_total
 
 def search_database(to_search: str, userid: int, page_size: int, offset: int, ):
         data = search_for_search_view(
@@ -102,17 +101,14 @@ def search_main(total_cred: int, userid):
                 to_search=user_search_output,
                 userid=userid
             )
-
+            search.set_total_cred(search_total_cred)
             db_data = search_database(
                         to_search=user_search_output,
                         userid=userid,
                         page_size=search.page_size,
                         offset=search.offset
                         )
-            for _ in db_data:
-                print(_)
-            import time
-            time.sleep(5)
+            
             search.set_total_cred(search_total_cred)
             user_option = screen_handler_with_options(
                 data=db_data,

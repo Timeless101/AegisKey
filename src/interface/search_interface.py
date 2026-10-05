@@ -81,7 +81,7 @@ def options(total_cred: int, current_page:int, max_page: int, showing_items_end:
     table.add_column(justify="right", no_wrap=True)
 
     table.add_row("[bright_blue][P] Previous[/]", "[yellow][B] Back[/]", "[bright_blue][N] Next[/]")
-    table.add_row("", "")
+    table.add_row("[yellow][S] Search[/]", "", "")
     table.add_row(f"[grey53]Showing {showing_items_start}-{showing_items_end} of {str(total_cred)}][/]", f"[cyan] Page {current_page}/{max_page}[/]", r"[cyan]\[#] Open item[/]")
     panel = Panel(
         table,
@@ -91,7 +91,7 @@ def options(total_cred: int, current_page:int, max_page: int, showing_items_end:
 
     CONSOLE.print(panel)
 
-    return Prompt.ask("\n[bright_cyan]Option[/]", choices=["P", "B", "N", "#"], case_sensitive=False, show_choices=False)
+    return Prompt.ask("\n[bright_cyan]Option[/]", choices=["P", "B", "N", "s", "#"], case_sensitive=False, show_choices=False)
 
 def footer():
     table = Table.grid(expand= True)
