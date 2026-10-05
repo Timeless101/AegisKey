@@ -8,8 +8,8 @@ from src.services.add_items import add_main
 
 class Search_flow:
     def __init__(self, userid: int, page_size: int, ):
-        self.total_cred = 100
-        self.pag = Pagination(total_cred=self.get_total_cred, page_size=page_size)
+        self.total_cred = 0
+        self.pag = Pagination(total_cred=self.get_total_cred(), page_size=page_size)
         self.search_main_view_data = storage_logic.get_screen_data(
                                     page_size=5,
                                     userid=userid,
@@ -21,7 +21,6 @@ class Search_flow:
 
     def next_page(self):
         self.pag.next_page()
-
 
     def previous_page(self):
         self.pag.previous_page()
@@ -64,14 +63,17 @@ def search_database(to_search: str, userid: int, page_size: int, offset: int, ):
             offset=offset
         )
 
-        total_cred = len(data)
+        if data is None:
+            total_cred = 0
+        else:
+            total_cred = len(data)
 
         return data, total_cred
 
 
 def search_main(total_cred: int, userid):
     search = Search_flow(userid=userid, page_size=5)
-    search.set_total_cred(total_cred=total_cred)
+    search.set_total_cred(new_total=total_cred)
     first_screen_data = search.search_main_view_data
 
     while True:
@@ -86,13 +88,15 @@ def search_main(total_cred: int, userid):
 
         while True:
             clear_screen()
+
             db_data, search_total_cred = search_database(
                         to_search=user_search_output,
                         userid=userid,
                         page_size=search.page_size,
                         offset=search.offset
                         )
-            search.set_total_cred(int(search_total_cred))
+            
+            search.set_total_cred(search_total_cred)
             user_option = screen_handler_with_options(
                 data=db_data,
                 total_credentials=search_total_cred,
