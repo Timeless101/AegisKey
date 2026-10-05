@@ -99,6 +99,7 @@ def footer():
     table.add_column(justify="center", no_wrap=True)
 
     table.add_row("Search by service, username or comment.")
+    table.add_row("Press enter to go back.")
     panel = Panel(
         table,
         width=70,

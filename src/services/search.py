@@ -15,8 +15,6 @@ class Search_flow:
                                     userid=userid,
                                     offset=0
                                 )
-        self.page_size = self.pag.page_size
-        self.total_pages = self.pag.total_pages
         self.state = False
 
     def next_page(self):
@@ -38,6 +36,14 @@ class Search_flow:
     @property
     def offset(self):
         return self.pag.offset
+
+    @property
+    def page_size(self):
+        return self.pag.page_size
+
+    @property
+    def total_pages(self):
+        return self.pag.total_pages
 
     @property
     def showing_start(self):
