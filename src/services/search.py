@@ -107,14 +107,14 @@ def search_main(total_cred: int, userid, encryption_key: bytes):
                 to_search=user_search_output,
                 userid=userid
             )
-            search.set_total_cred(search_total_cred)
+
             db_data = search_database(
                         to_search=user_search_output,
                         userid=userid,
                         page_size=search.page_size,
                         offset=search.offset
                         )
-            
+
             search.set_total_cred(search_total_cred)
             user_option = screen_handler_with_options(
                 data=db_data,
