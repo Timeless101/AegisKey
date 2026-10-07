@@ -25,7 +25,7 @@ def data_handler(data: list[tuple], choice: int, userid: int) -> tuple:
     if data is None:
         return None
 
-    return data, cred_id # returns .
+    return data[0], cred_id # returns .
 
 def get_cred_id(data: list[tuple], choice: int) -> int:
     for item in data:
@@ -117,6 +117,7 @@ def password_item_flow(str_choice: str, encryption_key: bytes, userid: int, cred
         case "d":
             if confirmation_prompt(text="\n:warning:[bright_cyan] Are you sure you want to delete this item?[/]:warning:") == "y":
                 delete_item(cred_id=cred_id, userid=userid)
+                
             pass
 
 def select_item_flow(data: list, userid: int) -> str:

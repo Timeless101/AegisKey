@@ -115,7 +115,7 @@ def searcher(table: str, columns: list, column: tuple, data_to_search: str, data
     except sqlite3.Error as e:
         raise errors.DatabaseError(e)
 
-def search_for_search_view(to_search: str, database: str, userid: int, limit: int, offset: int):
+def search_for_search_view(to_search: str, database: str, userid: int, limit: int, offset: int) -> None | list[tuple]:
 
     try:
         to_search = "%" + to_search + "%"

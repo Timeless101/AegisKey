@@ -106,7 +106,7 @@ def view_password_header():
 
 def view_password_item(data: list) -> str:
 
-    service, username, comment, created, editeddate = data[0]
+    service, username, comment, created, editeddate = data
 
     table = Table.grid(expand=True)
 

@@ -72,7 +72,7 @@ def search_database(to_search: str, userid: int, page_size: int, offset: int, ):
 
         return data
 
-def search_total_result(to_search: str, userid: int):
+def search_total_result(to_search: str, userid: int) -> int:
     data = search_for_search_view(
                 to_search=to_search,
                 database="CLI_Data.db",
@@ -150,40 +150,3 @@ def search_main(total_cred: int, userid, encryption_key: bytes):
                 case "a":
                     add_main()
                     continue
-
-"""
-S typed in main view; 
-data needs to be search for the search screen main view 5 entrys; class is initiated, self.search_main_data search for screen data.
-dat is geven to the screen; screen_handler_search(data=first_screen_data)
-screen is show with the data; main_view()
-screen is waiting for input from user; screen_handler_search() is called -> what to be searched.
-input will go to database; db_data = search.search_database(to_search=screen_handler_search(data=first_screen_data))
-database gets the data; search_database -> return the database data
-the data will go to the screen; screen_handler_with_options -> returns the user_option.
-
-
-the screen shows the data with limit 5 (so 5 items will be shown)
-user chooses a option: N or P;
-then screen give the input back;
-The match tree wil see what match;
-N is choose;
-input is handeld and given back;
-get the data;
-then it wil give the data to the screen;
-screen shows the data;
-and waits for new input.
-P is choosen;
-input is handeld and given back;
-get the data;
-then it wil give the data to the screen;
-screen shows the data;
-and waits for new input.
-s is choosen;
-input is handeld and given back;
-get the data to show for search screen;
-gives the data to the screen;
-shows the search screen with the data and wait for input;
-search is done;
-gets back to the search result screen;
-repead.
-"""
