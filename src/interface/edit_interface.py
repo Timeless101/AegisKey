@@ -9,16 +9,15 @@ CONSOLE = Console()
 
 def edit_success():
     clear_screen()
-    CONSOLE.print("[bright_cyan]Succesfully edited!")
+    CONSOLE.print("[bright_cyan]Succesfully edited![/]")
 
 class Edit_prompt:
     def new_data_question(title, value):
         print(f"Current {title}: {value}")
         return Prompt.ask(f"New {title}")
 
-    def new_password_question(title, value):
-            print(f"Current {title}: {value}")
-            return get_password_with_complexity()
+    def new_password_question():
+        return get_password_with_complexity()
 
     def confirmation():
         return Prompt.ask("is the information corred y/n default", choices=["yes", "y", "n", "no"], case_sensitive=False, show_choices=False, default="y")
