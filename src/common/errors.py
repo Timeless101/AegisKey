@@ -66,3 +66,6 @@ class WrongSQLStatement(Exception):
 
 class UnexpectedError(Exception):
     pass
+
+class DecryptionError(Exception):
+    pass
