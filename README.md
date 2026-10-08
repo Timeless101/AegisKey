@@ -197,7 +197,7 @@ Completed:
 
 Final release checks:
 
-- Fresh-clone installation verification
+- Fresh-clone installation verification ✅
 - Full manual acceptance flow
 - Final test run
 - License selection
