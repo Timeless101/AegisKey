@@ -291,10 +291,7 @@ def delete_item(database: str, table: str, cred_id: int, userid: int) -> bool:
         with sqlite3.Connection(database) as connection:
             c = connection.cursor()
             c.execute(query, (cred_id, userid))
-            count = c.rowcount()
-            if count == 0:
-                return True
-            return False
+            return c.rowcount > 0
     except sqlite3.ProgrammingError as Programmers_fault:
         raise errors.WrongSQLStatement("The SQL statements are wrong, please check the query you wrote.") from Programmers_fault
             
