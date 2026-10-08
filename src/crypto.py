@@ -1,13 +1,17 @@
 from cryptography.hazmat.primitives.kdf.argon2 import Argon2id
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 import base64
 import cryptography
 import os
+import src.common.errors as errors
 
 def password_decryption(encryption_key: bytes, password: bytes) -> str:
-    f: Fernet = Fernet(encryption_key)
-    decrypted_password: bytes = f.decrypt(password)
-    return decrypted_password.decode("utf-8")
+    try:
+        f: Fernet = Fernet(encryption_key)
+        decrypted_password: bytes = f.decrypt(password)
+        return decrypted_password.decode("utf-8")
+    except (InvalidToken, ValueError, UnicodeDecodeError) as decrypt_error:
+        raise errors.DecryptionError("Password could not be decrypted.") from decrypt_error
 
 def password_encryption(encryption_key: bytes, password: str) -> bytes:
     f: Fernet = Fernet(encryption_key)
