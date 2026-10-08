@@ -233,7 +233,7 @@ For security vulnerabilities, follow [SECURITY.md](SECURITY.md) rather than open
 
 ## License
 
-A license will be selected and added as part of the CLI v1.0 release preparation.
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
 
 ## Author
 
