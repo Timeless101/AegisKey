@@ -88,4 +88,4 @@ def test_get_input_and_validate_it_happy_test(monkeypatch):
     monkeypatch.setattr(crypto, "hash_password", fake_hash_password)
     monkeypatch.setattr(login_logic, "email_search", fake_email_search)
 
-    assert login_logic.get_input_and_validate_it() == ("test@test.com" , b"password_hash", b"password_salt", b"encryption_salt")
+    assert login_logic.get_input_and_validate_it() == ('test@test.com', 'test', b'password_hash', b'password_salt', b'encryption_salt')
