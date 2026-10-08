@@ -17,7 +17,6 @@ def password_encryption(encryption_key: bytes, password: str) -> bytes:
     f: Fernet = Fernet(encryption_key)
     return f.encrypt(password.encode("utf-8"))
 
-#Hash password, create key for encryption.
 def hash_password(password: str) -> tuple[bytes, bytes, bytes]:
 
     salt_masterpassword: bytes = os.urandom(16)
@@ -36,7 +35,6 @@ def hash_password(password: str) -> tuple[bytes, bytes, bytes]:
 
     return kdf_masterpassword.derive(password), salt_masterpassword, salt_encryption
 
-#Check password to hash.
 def verify_password(input_password: str, database_password: bytes, salt: bytes) -> bool:
 
     kdf: bytes = Argon2id(
