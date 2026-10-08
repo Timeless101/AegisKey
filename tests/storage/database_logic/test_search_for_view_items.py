@@ -1,7 +1,9 @@
 import src.storage.database_logic as database_logic
 import sqlite3
+import pytest
 
-def test_search_for_view_items_happy_test(tmp_path):
+@pytest.fixture
+def database(tmp_path):
     db = tmp_path / "test.db"
 
     create_table = """
@@ -36,11 +38,17 @@ def test_search_for_view_items_happy_test(tmp_path):
         cursor.execute(create_table)
         cursor.execute(insert_data)
 
+        cursor.close()
+
+    return db
+
+def test_search_for_view_items_happy_test(database):
+    
     rows = database_logic.search_for_view_items(
         userid= 1,
         limit= 5,
         offset=0,
-        database=db)
+        database=database)
 
     assert rows is not None
 
