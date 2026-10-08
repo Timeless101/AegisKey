@@ -3,8 +3,13 @@ from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 from src.common.helper_functions import get_password_with_complexity
+from src.common.helper_functions import clear_screen
 
 CONSOLE = Console()
+
+def edit_success():
+    clear_screen()
+    CONSOLE.print("[bright_cyan]Succesfully edited!")
 
 class Edit_prompt:
     def new_data_question(title, value):

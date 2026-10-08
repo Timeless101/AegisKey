@@ -8,7 +8,7 @@ CONSOLE = Console()
 
 def items_none() -> str:
 
-    empty_vault = ":information: [bold yellow]No recent passwords added[/] :information:"
+    empty_vault = ":information: [bold yellow]No matching credentials found[/] :information:"
     panel1 = Panel(
         empty_vault,
         width=70
@@ -32,7 +32,7 @@ def items_none() -> str:
     
     CONSOLE.print(panel)
 
-    return input()
+    return Prompt.ask("\n[bright_cyan]Option[/]", choices=["B", "A"], case_sensitive=False, show_choices=False)
 
 def main_header(total_credentials: int) -> None:
     table = Table.grid(expand= True)

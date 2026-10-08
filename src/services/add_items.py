@@ -4,7 +4,7 @@ from src.storage.storage_logic import insert_data
 from datetime import datetime
 from src.common.helper_functions import clear_screen, confirmation_prompt
 from src.interface.error_messages import print_internal_error
-from src.interface.add_interface import add_items_screen_flow
+from src.interface.add_interface import add_items_screen_flow, add_success
 
 def add_item(data: dict, key: bytes, userid: int) -> bool:
     current_time = datetime.now()
@@ -59,6 +59,7 @@ def add_main(userid: int, encryption_key: bytes) -> str:
         match confirmation_prompt(text="\n[bright_cyan]Is al information correct?[/]"):
             case "y":
                 if add_item(data=result, key=encryption_key, userid=userid):
+                    add_success()
                     break
                 else:
                     print_internal_error()

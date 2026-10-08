@@ -2,8 +2,12 @@ from rich.prompt import Prompt, IntPrompt
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
-
+from src.common.helper_functions import clear_screen
 CONSOLE = Console()
+
+def delete_success():
+    clear_screen()
+    CONSOLE.print("[bright_cyan]Succesfully deleted![/]")
 
 def ask_item_id():
     return IntPrompt.ask("[cyan]Item ID[/]")

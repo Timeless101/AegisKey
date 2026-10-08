@@ -117,7 +117,8 @@ def password_item_flow(str_choice: str, encryption_key: bytes, userid: int, cred
         case "d":
             if confirmation_prompt(text="\n:warning:[bright_cyan] Are you sure you want to delete this item?[/]:warning:") == "y":
                 delete_item(cred_id=cred_id, userid=userid)
-                
+                clear_screen()
+                view_interface.delete_success()
             pass
 
 def select_item_flow(data: list, userid: int) -> str:

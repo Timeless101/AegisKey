@@ -14,6 +14,7 @@ def update_password(column: str, cred_id: int, userid: int, encryption_key: byte
         awnser = edit_interface.Edit_prompt.confirmation()
 
         if awnser.lower() not in ("y", "yes"):
+            edit_interface.edit_success()
             continue
 
         password_encrypted = crypto.password_encryption(
@@ -54,6 +55,7 @@ def update_data(column: str, cred_id: int, userid: int, encryption_key: bytes, i
         awnser = edit_interface.Edit_prompt.confirmation()
 
         if awnser.lower() not in ("y", "yes"):
+            edit_interface.edit_interface()
             continue
         break
 
@@ -80,11 +82,9 @@ def main(cred_id: int, userid: int, encryption_key: bytes) -> bool | None:
         userid=userid,
         encryption_key=encryption_key
         ):
-        print("Back to the main func")
         return False
 
 def choice_table(choice, cred_id: int, userid: int, encryption_key: bytes) -> None:
-    print(choice)
     match choice:
 
         case "1":
@@ -123,5 +123,4 @@ def choice_table(choice, cred_id: int, userid: int, encryption_key: bytes) -> No
                 is_password=False
             )
         case "b":
-            print("We have made it to the case!")
             return False

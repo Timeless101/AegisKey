@@ -77,8 +77,8 @@ def initialize_database_bystartup() -> bool:
                 "Username": "TEXT",
                 "Password": "TEXT",
                 "Comment": "TEXT",
-                "CreationDate": "DATE",
-                "EditedDate": "DATE", 
+                "CreationDate": "DATE NOT NULL",
+                "EditedDate": "DATE NOT NULL", 
             },
         )
 
