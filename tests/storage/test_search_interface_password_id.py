@@ -1,4 +1,4 @@
-from src.storage.Database_logic import Search_data
+from src.storage.database_logic import search_interface_password_id
 import sqlite3
 
 
@@ -35,7 +35,7 @@ def test_search_interface_password_id_user_2(tmp_path):
         cursor.execute(insert_data)
 
 
-    rows = Search_data.search_interface_password_id(
+    rows = search_interface_password_id(
         userid=2,
         database=db,
         limit=3
@@ -81,7 +81,7 @@ def test_search_interface_password_id_user_3(tmp_path):
         cursor.execute(insert_data)
 
 
-    rows = Search_data.search_interface_password_id(
+    rows = search_interface_password_id(
         userid=3,
         database=db,
         limit=3
@@ -129,7 +129,7 @@ def test_search_interface_password_None(tmp_path):
         cursor.execute(insert_data)
 
 
-    rows = Search_data.search_interface_password_id(
+    rows = search_interface_password_id(
         userid=10,
         database=db,
         limit=3

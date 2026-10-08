@@ -1,6 +1,6 @@
 import pytest
 import src.common.errors as errors
-from src.storage.Database_logic import Insert_data, Search_data, Table_creator
+from src.storage.database_logic import Insert_data, Search_data, Table_creator
 
 
 def test_insert_missing_table_raises_insert_error(tmp_path):

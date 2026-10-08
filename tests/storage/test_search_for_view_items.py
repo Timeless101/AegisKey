@@ -1,4 +1,4 @@
-import src.storage.Database_logic as Database_logic
+import src.storage.database_logic as database_logic
 import sqlite3
 
 def test_search_for_view_items_happy_test(tmp_path):
@@ -36,7 +36,7 @@ def test_search_for_view_items_happy_test(tmp_path):
         cursor.execute(create_table)
         cursor.execute(insert_data)
 
-    rows = Database_logic.Search_data.search_for_view_items(
+    rows = database_logic.Search_data.search_for_view_items(
         userid= 1,
         limit= 5,
         offset=0,
