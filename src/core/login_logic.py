@@ -64,7 +64,9 @@ def initialize_database_bystartup() -> bool:
             "Email": "TEXT UNIQUE NOT NULL",
             "Password": "TEXT NOT NULL",
             "Salt": "TEXT NOT NULL",
-            "EncryptionSalt": "TEXT NOT NULL"})
+            "EncryptionSalt": "TEXT NOT NULL"},
+            )
+
         
         table2: bool = storage_logic.table_creator(
             table_name="vault_storage",
@@ -77,7 +79,7 @@ def initialize_database_bystartup() -> bool:
                 "Comment": "TEXT",
                 "CreationDate": "DATE",
                 "EditedDate": "DATE", 
-            }
+            },
         )
 
         if table1 and table2:

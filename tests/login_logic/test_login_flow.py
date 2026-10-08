@@ -1,6 +1,6 @@
 import src.core.login_logic as login_logic
 import src.interface.login_interface as login_interface
-import src.Services.helper_functions as helper_functions
+import src.common.helper_functions as helper_functions
 import src.common.errors as errors
 import pytest
 

@@ -1,5 +1,5 @@
 import src.storage.storage_logic as storage_logic
-import src.storage.Database_logic as Database_logic
+import src.storage.database_logic as Database_logic
 import src.common.errors as errors
 import pytest
 

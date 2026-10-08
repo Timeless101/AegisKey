@@ -21,7 +21,7 @@ def create_table(table_name: str, columns: dict, database_name: str) -> True:
 
         columns_sql_string = ", ".join(columns_sql)
 
-        run = f"""
+        query = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
             {columns_sql_string}
         );
@@ -29,7 +29,7 @@ def create_table(table_name: str, columns: dict, database_name: str) -> True:
         
         with sqlite3.connect(database_name) as connection:
             c = connection.cursor()
-            c.execute(run)
+            c.execute(query)
             connection.commit()
         
         return True
@@ -136,7 +136,7 @@ def search_for_search_view(to_search: str, database: str, userid: int, limit: in
         if len(searched_data) == 0:
             return None
 
-        return searched_data #screen_number, cred_id, Service, Username, Comment, CreationDate, EditedDate
+        return searched_data #screen_number, cred_id, Service, Username, Comment, EditedDate
     
     except sqlite3.ProgrammingError as Programmers_fault:
         raise errors.WrongSQLStatement("The SQL statements are wrong, please check the query you wrote.") from Programmers_fault
