@@ -1,192 +1,125 @@
-# Encrypted CLI Password Vault
+# AegisKey — Encrypted CLI Password Vault
 
-A modular command-line password manager built with Python, SQLite, Argon2id, Fernet, Rich, and pytest.
+AegisKey is a local command-line password vault built with Python, SQLite, Argon2id, Fernet, Rich, and pytest.
 
 ![Python 3.14](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
 ![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?logo=sqlite&logoColor=white)
 ![Tests](https://img.shields.io/badge/Tests-pytest-0A9EDC?logo=pytest&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Active%20development-orange)
+![Status](https://img.shields.io/badge/Status-CLI%20v1.0%20release%20candidate-blue)
 
-> This project is under active development. It has not been independently security-audited and should not yet be used to store production credentials.
+> AegisKey is a learning project and has not undergone an independent security audit. Do not treat it as a replacement for an audited production password manager.
 
 ## Overview
 
-Encrypted CLI Password Vault is a local password manager with a terminal interface. It supports user registration and login, encrypts credential passwords before writing them to SQLite, and separates interface, application logic, storage, validation, and cryptographic responsibilities into dedicated modules.
+AegisKey is a terminal-based password manager with local user registration, authentication, encrypted credential-password storage, credential ownership checks, pagination, search, editing, deletion, and clipboard support.
 
-The project began as a way to learn Python by building a complete application rather than isolated exercises. The current goal is to finish and harden the CLI as a complete v1.0 release before moving on to a REST API and web interface.
+The CLI is the first project milestone. The next phase is planned around a FastAPI REST API and a web interface while reusing the application and storage concepts developed in the CLI.
 
-## Current interface
+## Interface
 
 ![Main interface](docs/images/main_view.png)
 
-The main interface displays an overview of credentials stored in the vault and provides keyboard-driven navigation to the main vault features.
-
 ![All credentials view](docs/images/view-credentials.png)
 
-The credential view displays five records per page, masks passwords in list views, orders credentials predictably, and supports opening individual credentials for further actions.
-
-## Current features
+## Features
 
 ### Authentication
 
-- Local user registration and login
+- Local registration and login
 - Email validation and duplicate-account prevention
-- Master-password verification using Argon2id
-- Separate salts for password verification and encryption-key derivation
-- Per-user credential records
+- Master-password verification with Argon2id
+- Separate salts for authentication and encryption-key derivation
 - Session encryption-key derivation after successful authentication
+- Per-user credential ownership
 
-### Password vault
+### Vault
 
-- Add credentials through an interactive CLI flow
-- Encrypt credential passwords with Fernet before database storage
-- Confirm entered data before saving
-- Display credentials in Rich tables
-- Sort credentials by service and username
-- Five-record pagination with previous/next navigation
-- Dynamic `Showing x-y of total` and page information
-- Open an individual credential from the View screen
-- Keep passwords masked in overview/detail screens until explicitly requested
-- Reveal and copy a selected credential password
+- Add credentials
+- Encrypt stored credential passwords with Fernet
+- Mask passwords in normal list and detail views
+- Reveal passwords only after explicit confirmation
+- Copy revealed passwords to the system clipboard
 - Edit Service, Username, Password, and Comment
 - Delete credentials with confirmation
-- Store creation and modification timestamps
-- Dedicated empty-vault handling
+- Track creation and modification timestamps
+- Sort credentials by Service and Username
+- Show recent credentials on the main vault screen
+- Five-item pagination
+- Search by Service, Username, or Comment
+- Partial and case-insensitive search
+- Dedicated empty-vault and no-search-results states
 
-### Application design
+### Security-related behavior
 
-- Layered, modular project structure
-- Separate interface, logic, service, storage, validation, and cryptography modules
-- Feature-specific vault services for Add, View, and Edit
-- Custom application exceptions
-- Automatic SQLite database and table initialization
-- Parameterized SQL values
-- Type hints across the application
+- Credential reads, edits, and deletes are scoped to the logged-in `UserID`
+- User-controlled SQL values use SQLite parameters
+- Stored credential passwords are encrypted before database insertion
+- Password decryption failures are converted into controlled application errors
+- Session references to the email, user ID, and encryption key are cleared on lock/logout
+- New vault databases require credential Password, UserID, CreationDate, and EditedDate values
 
-### Testing
+See [Security Model](docs/SECURITY_MODEL.md) for assumptions and limitations.
 
-- pytest-based automated test suite
-- Tests for cryptography, validation, login logic, vault logic, storage, and storage logic
-- Temporary SQLite databases through pytest's `tmp_path`
-- Mocking and exception-path testing
-- Additional tests are being added for Edit, Delete, Search, pagination edge cases, ownership checks, and crypto failures
+## Architecture
 
-## Development status
+The current CLI uses a layered structure:
 
-The majority of the CLI feature set is implemented. Search is the final major CLI feature before the project moves into a larger refactor, security-hardening, test-cleanup, documentation, and release phase.
+```text
+Interface
+   ↓
+Core / Services
+   ↓
+Storage Logic
+   ↓
+Database Logic
+   ↓
+SQLite
 
-### Implemented
+Crypto and validation are used by the application/service layers where required.
+```
 
-- [x] Database initialization
-- [x] Registration and login
-- [x] Argon2id password verification
-- [x] Session encryption-key derivation
-- [x] Fernet encryption for stored credential passwords
-- [x] Add Credential flow
-- [x] Vault dashboard
-- [x] Alphabetically sorted credential view
-- [x] Five-record pagination
-- [x] Previous and next page navigation
-- [x] Dynamic pagination metadata
-- [x] Open an individual credential
-- [x] Reveal a password only after explicit user action
-- [x] Copy a revealed password
-- [x] Edit credentials
-- [x] Delete credentials
-- [x] Dedicated empty-state handling
-
-### In progress
-
-- [ ] Search credentials
-- [ ] Fix remaining Delete edge cases
-- [ ] Make the main overview consistently show the most recent credentials
-- [ ] Bring the complete automated test suite in sync with the current application
-
-### CLI v1.0 cleanup and hardening
-
-- [ ] Full code refactor and responsibility cleanup
-- [ ] Error-handling refactor
-- [ ] Credential ownership checks on reads and deletes
-- [ ] SQL identifier hardening
-- [ ] Clipboard cleanup for copied passwords
-- [ ] Session cleanup on lock/logout
-- [ ] Database schema/constraint review
-- [ ] Crypto failure handling
-- [ ] Final CLI navigation and UX polish
-- [ ] README and architecture documentation
-- [ ] Security documentation
-- [ ] Clean-install verification
-- [ ] Full manual acceptance test
-- [ ] CLI v1.0 release
-
-### Future platform development
-
-After the CLI v1.0 milestone, the project is planned to continue with:
-
-- [ ] FastAPI REST API
-- [ ] Web interface using HTML/CSS/JavaScript
-- [ ] PostgreSQL support
-- [ ] Server-side multi-user authentication/session design
-- [ ] Docker deployment
-- [ ] Cloud deployment
-
-## Security model
-
-The current implementation uses the following high-level flow:
-
-1. The master password is processed with Argon2id during registration and authentication.
-2. Password verification and encryption-key derivation use separate stored salts.
-3. After a successful login, an encryption key is derived for the active session.
-4. Credential passwords are encrypted with Fernet before being written to SQLite.
-5. List views retrieve only the fields required for display and show passwords as masked values.
-6. A credential password is fetched/decrypted only when the user explicitly requests access to it.
-
-Security-sensitive code is still being reviewed and hardened. Before the first stable CLI release, the project roadmap includes ownership enforcement, session and clipboard cleanup, database constraint review, crypto failure handling, improved tests, and documentation of security limitations.
-
-This project has not undergone an independent security audit and does not make production-grade security guarantees.
+See [Architecture](docs/ARCHITECTURE.md) for the detailed module responsibilities and application flows.
 
 ## Project structure
 
 ```text
-Encrypted-CLI-password-vault/
-|
-|-- src/
-|   |-- interface/
-|   |   |-- error_messages.py
-|   |   |-- helper_functions.py
-|   |   |-- login_interface.py
-|   |   `-- vault_interface.py
-|   |
-|   |-- vault_services/
-|   |   |-- add_items.py
-|   |   |-- edit.py
-|   |   |-- helper_functions.py
-|   |   `-- view_items.py
-|   |
-|   |-- crypto.py
-|   |-- errors.py
-|   |-- login_logic.py
-|   |-- main.py
-|   |-- main_logic.py
-|   |-- storage.py
-|   |-- storage_logic.py
-|   |-- validator.py
-|   `-- vault_logic.py
-|
-|-- tests/
-|   |-- crypto/
-|   |-- login_logic/
-|   |-- storage/
-|   |-- storage_logic/
-|   |-- validator/
-|   `-- vault_logic/
-|
-|-- pytest.ini
-|-- requirements.txt
-`-- README.md
-```
+src/
+├── common/
+│   ├── errors.py
+│   └── helper_functions.py
+├── core/
+│   ├── login_logic.py
+│   ├── main_logic.py
+│   └── vault_logic.py
+├── interface/
+│   ├── add_interface.py
+│   ├── edit_interface.py
+│   ├── error_messages.py
+│   ├── login_interface.py
+│   ├── search_interface.py
+│   ├── vault_interface.py
+│   └── view_interface.py
+├── services/
+│   ├── add_items.py
+│   ├── edit.py
+│   ├── pagination.py
+│   ├── search.py
+│   └── view_items.py
+├── storage/
+│   ├── database_logic.py
+│   └── storage_logic.py
+├── crypto.py
+├── validator.py
+└── main.py
 
-The structure is still being actively refactored. The goal is for interface modules to focus on input/output, vault services to own feature-specific flows, application logic to coordinate behavior, and storage modules to isolate database access.
+tests/
+├── crypto/
+├── login_logic/
+├── services/
+├── storage/
+├── validator/
+└── vault_logic/
+```
 
 ## Technology stack
 
@@ -194,11 +127,11 @@ The structure is still being actively refactored. The goal is for interface modu
 |---|---|
 | Python 3.14 | Application runtime |
 | SQLite | Local persistent storage |
-| cryptography | Fernet encryption and supporting cryptographic operations |
-| Argon2id | Master-password verification / key-derivation-related password processing |
-| Rich | Terminal layout, panels, tables, and prompts |
-| InquirerPy | Interactive CLI input |
-| pyperclip | Clipboard support for copied passwords |
+| cryptography | Fernet encryption |
+| Argon2id | Master-password hashing and encryption-key derivation |
+| Rich | CLI tables, panels, prompts, and formatting |
+| InquirerPy | Interactive secret/password input |
+| pyperclip | Clipboard integration |
 | pytest | Automated testing |
 
 ## Installation
@@ -211,72 +144,99 @@ cd Encrypted-CLI-password-vault
 python -m pip install -r requirements.txt
 ```
 
-Run the application from the repository root:
+Run from the repository root:
 
 ```bash
 python -m src.main
 ```
 
-The SQLite database is created automatically on first start and should remain excluded from Git.
+The SQLite database is created automatically on first start.
 
-## Running the tests
+## Running tests
 
-Run the complete test suite:
+Run the full suite:
 
 ```bash
 python -m pytest
 ```
 
-Run tests with detailed output:
+Detailed output:
 
 ```bash
 python -m pytest -vv
 ```
 
-Run a single test file while showing printed output:
+## Security notes
 
-```bash
-python -m pytest -s path/to/test_file.py
-```
+AegisKey encrypts the credential **Password** field, but the SQLite database itself is not fully encrypted. Service names, usernames, comments, timestamps, account email addresses, password hashes, and salts are stored as database data.
 
-The test suite is currently being updated alongside the final CLI feature and refactor work, so some existing tests may temporarily need adjustment as older application flows are removed or changed.
+Copied passwords remain in the operating-system clipboard until they are overwritten. This is an intentional v1.0 design choice.
 
-## Roadmap to CLI v1.0
+Python does not provide guaranteed secure memory wiping, so clearing a Python variable does not guarantee that historical bytes are immediately removed from process memory.
 
-The remaining work is tracked through GitHub Issues and is grouped around six main areas:
+For the complete security model, threat assumptions, reporting process, and known limitations, see:
 
-1. **Search** — complete the final major CLI feature.
-2. **Refactor** — simplify structure, responsibilities, naming, typing, and error handling.
-3. **Testing** — bring the full automated suite up to date and cover important edge cases.
-4. **Security hardening** — enforce user ownership and review sensitive-data handling.
-5. **CLI polish** — make navigation, empty states, errors, and feedback consistent.
-6. **Release** — verify a clean install, update documentation, run an acceptance test, and publish CLI v1.0.
+- [SECURITY.md](SECURITY.md)
+- [Security Model](docs/SECURITY_MODEL.md)
 
-The API and web interface are intentionally treated as the next project phase rather than part of the CLI v1.0 milestone.
+## CLI v1.0 status
+
+The CLI feature set is complete and is in final release preparation.
+
+Completed:
+
+- Authentication and registration
+- Add / View / Reveal / Copy
+- Edit and Delete
+- Pagination
+- Search
+- Credential ownership enforcement
+- Crypto-failure handling
+- Security and UX hardening
+- Automated regression coverage for critical database/search/crypto behavior
+
+Final release checks:
+
+- Fresh-clone installation verification
+- Full manual acceptance flow
+- Final test run
+- License selection
+- `v1.0.0` tag and GitHub release
+
+## Roadmap after CLI v1.0
+
+Planned next phases:
+
+- FastAPI REST API
+- HTML/CSS/JavaScript web interface
+- PostgreSQL
+- Server-side authentication/session design
+- Docker
+- Deployment and operations work
 
 ## Design goals
 
-This project is being developed around a few practical goals:
-
-- Keep user-interface code separate from business and storage logic.
-- Make security-sensitive operations explicit and testable.
-- Keep database access replaceable so SQLite can later be exchanged for PostgreSQL.
-- Reuse application/domain logic when the API and web interface are introduced.
-- Prefer understandable code and incremental refactoring over prematurely complex abstractions.
-- Finish features before introducing abstractions that are not yet justified by the codebase.
+- Keep UI code separate from application and storage logic
+- Keep security-sensitive operations explicit and testable
+- Avoid unnecessary abstractions
+- Keep storage replaceable for future API/database work
+- Reuse application concepts when moving beyond the CLI
+- Prefer incremental, understandable engineering over premature complexity
 
 ## Contributing
 
-Feedback, bug reports, security observations, and architecture discussions are welcome. Because this is also a learning project, please open an issue before submitting a large change so the reasoning and design can be discussed first.
+Bug reports and architecture discussions are welcome.
 
-Do not include real credentials, database files, encryption keys, master passwords, or other secrets in issues, logs, screenshots, or pull requests.
+Do not include real credentials, database files, encryption keys, master passwords, decrypted passwords, or other secrets in public issues, logs, screenshots, or pull requests.
+
+For security vulnerabilities, follow [SECURITY.md](SECURITY.md) rather than opening a public issue.
 
 ## License
 
-This repository does not currently include an open-source license. Selecting and adding a license is part of the CLI v1.0 release roadmap.
+A license will be selected and added as part of the CLI v1.0 release preparation.
 
 ## Author
 
 **Diego Wuck**
 
-System Engineer building practical Python and cloud engineering skills through hands-on projects.
+System Engineer building practical software, infrastructure, and cloud engineering skills through hands-on projects.
