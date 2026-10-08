@@ -291,10 +291,12 @@ def delete_item(database: str, table: str, cred_id: int, userid: int) -> bool:
         with sqlite3.Connection(database) as connection:
             c = connection.cursor()
             c.execute(query, (cred_id, userid))
-            return True
-
+            count = c.rowcount()
+            if count == 0:
+                return True
+            return False
     except sqlite3.ProgrammingError as Programmers_fault:
-                raise errors.WrongSQLStatement("The SQL statements are wrong, please check the query you wrote.") from Programmers_fault
+        raise errors.WrongSQLStatement("The SQL statements are wrong, please check the query you wrote.") from Programmers_fault
             
     except sqlite3.OperationalError as Operation_error:
         raise errors.DatabaseError(f"Database Operation failed: {Operation_error}")

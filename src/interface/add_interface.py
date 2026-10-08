@@ -8,7 +8,7 @@ CONSOLE = Console()
 
 def add_success():
     clear_screen()
-    CONSOLE.print("[bright_cyan]Succes![\]")
+    CONSOLE.print("[bright_cyan]Succes![/]")
 
 def add_items_screen_flow():
     service, username, password, comment = add_items_screen()

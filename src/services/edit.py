@@ -14,7 +14,6 @@ def update_password(column: str, cred_id: int, userid: int, encryption_key: byte
         awnser = edit_interface.Edit_prompt.confirmation()
 
         if awnser.lower() not in ("y", "yes"):
-            edit_interface.edit_success()
             continue
 
         password_encrypted = crypto.password_encryption(
@@ -30,6 +29,7 @@ def update_password(column: str, cred_id: int, userid: int, encryption_key: byte
                             new_date=datetime.now().replace(microsecond=0)
                             
         )
+        edit_interface.edit_success()
         break
 
 def update_data(column: str, cred_id: int, userid: int, encryption_key: bytes, is_password: bool) -> None:
@@ -55,8 +55,8 @@ def update_data(column: str, cred_id: int, userid: int, encryption_key: bytes, i
         awnser = edit_interface.Edit_prompt.confirmation()
 
         if awnser.lower() not in ("y", "yes"):
-            edit_interface.edit_interface()
             continue
+        edit_interface.edit_success()
         break
 
     storage_logic.update_database_item(
