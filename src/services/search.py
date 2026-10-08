@@ -81,7 +81,7 @@ def search_total_result(to_search: str, userid: int) -> int:
                 limit=None,
                 offset=0
             )
-
+    print(data)
     if data is None:
         return 0
     
