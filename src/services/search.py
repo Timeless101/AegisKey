@@ -149,5 +149,5 @@ def search_main(total_cred: int, userid, encryption_key: bytes):
                     break
 
                 case "a":
-                    add_main()
+                    add_main(userid=userid, encryption_key=encryption_key)
                     continue
