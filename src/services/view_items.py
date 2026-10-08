@@ -102,7 +102,12 @@ def password_item_flow(str_choice: str, encryption_key: bytes, userid: int, cred
         case "r":
             if confirmation_prompt(text="\n[bright_cyan]Are you sure you want to reveal the password?[/]") == "y":
                 clear_screen()
-                password = view_password(encryption_key=encryption_key, cred_id=cred_id, userid=userid)
+                try:
+                    password = view_password(encryption_key=encryption_key, cred_id=cred_id, userid=userid)
+                except errors.DecryptionError:
+                    error_messages.print_decryption_error()
+                    return False
+
                 while True:
                     clear_screen()
                     if view_interface.view_password_plain_handeler(data=data, password=password) == "c":
@@ -119,7 +124,8 @@ def password_item_flow(str_choice: str, encryption_key: bytes, userid: int, cred
                 if delete_item(cred_id=cred_id, userid=userid):
                     clear_screen()
                     view_interface.delete_success()
-                error_messages.print_internal_error()
+                else:
+                    error_messages.print_internal_error()
             pass
 
 def select_item_flow(data: list, userid: int) -> str:
