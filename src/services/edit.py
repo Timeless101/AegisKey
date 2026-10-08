@@ -1,16 +1,22 @@
 import src.interface.edit_interface as edit_interface
+import src.interface.error_messages as error_messages
 import src.storage.storage_logic as storage_logic
+import src.common.errors as errors
 import src.crypto as crypto
 from datetime import datetime
 
-def update_password(column: str, cred_id: int, userid: int, encryption_key: bytes, current_data) -> None:
-    while True:
-        password_decrypted = crypto.password_decryption(
+def update_password(column: str, cred_id: int, userid: int, encryption_key: bytes, current_data) -> bool:
+    try:
+        crypto.password_decryption(
             password=current_data,
             encryption_key=encryption_key
             )
-        
-        new_data = edit_interface.Edit_prompt.new_data_question(column, password_decrypted)
+    except errors.DecryptionError:
+        error_messages.print_decryption_error()
+        return False
+
+    while True:
+        new_data = edit_interface.Edit_prompt.new_password_question()
         awnser = edit_interface.Edit_prompt.confirmation()
 
         if awnser.lower() not in ("y", "yes"):
@@ -30,9 +36,9 @@ def update_password(column: str, cred_id: int, userid: int, encryption_key: byte
                             
         )
         edit_interface.edit_success()
-        break
+        return True
 
-def update_data(column: str, cred_id: int, userid: int, encryption_key: bytes, is_password: bool) -> None:
+def update_data(column: str, cred_id: int, userid: int, encryption_key: bytes, is_password: bool) -> bool:
     current_data = storage_logic.searcher(
                 columns=[column,],
                 column=("cred_id",),
@@ -41,14 +47,13 @@ def update_data(column: str, cred_id: int, userid: int, encryption_key: bytes, i
             )[0][0]
 
     if is_password:
-        update_password(
+        return update_password(
             current_data=current_data,
             column=column,
             cred_id=cred_id,
             userid=userid,
             encryption_key=encryption_key,
         )
-        return None
 
     while True:
         new_data = edit_interface.Edit_prompt.new_data_question(column, current_data)
@@ -56,7 +61,6 @@ def update_data(column: str, cred_id: int, userid: int, encryption_key: bytes, i
 
         if awnser.lower() not in ("y", "yes"):
             continue
-        edit_interface.edit_success()
         break
 
     storage_logic.update_database_item(
@@ -66,6 +70,8 @@ def update_data(column: str, cred_id: int, userid: int, encryption_key: bytes, i
             new_data=new_data,
             new_date=datetime.now().replace(microsecond=0)
         )
+    edit_interface.edit_success()
+    return True
 
 def main(cred_id: int, userid: int, encryption_key: bytes) -> bool | None:
 
@@ -76,19 +82,18 @@ def main(cred_id: int, userid: int, encryption_key: bytes) -> bool | None:
         userid=userid
     )
     
-    if not choice_table(
+    return choice_table(
         choice=edit_interface.handler(data=data),
         cred_id=cred_id,
         userid=userid,
         encryption_key=encryption_key
-        ):
-        return False
+        )
 
-def choice_table(choice, cred_id: int, userid: int, encryption_key: bytes) -> None:
+def choice_table(choice, cred_id: int, userid: int, encryption_key: bytes) -> bool:
     match choice:
 
         case "1":
-            update_data(
+            return update_data(
                 column="Service",
                 cred_id=cred_id,
                 userid=userid,
@@ -97,7 +102,7 @@ def choice_table(choice, cred_id: int, userid: int, encryption_key: bytes) -> No
             )
 
         case "2":
-            update_data(
+            return update_data(
                 column="Username",
                 cred_id=cred_id,
                 userid=userid,
@@ -106,7 +111,7 @@ def choice_table(choice, cred_id: int, userid: int, encryption_key: bytes) -> No
             )
 
         case "3":
-            update_data(
+            return update_data(
                 column="Password",
                 cred_id=cred_id,
                 userid=userid,
@@ -115,7 +120,7 @@ def choice_table(choice, cred_id: int, userid: int, encryption_key: bytes) -> No
             )
 
         case "4":
-            update_data(
+            return update_data(
                 column="Comment",
                 cred_id=cred_id,
                 userid=userid,
