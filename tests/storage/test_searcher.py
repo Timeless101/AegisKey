@@ -39,22 +39,26 @@ def db_path(tmp_path):
     return db_path
 
 def test_searcher_happy_test(db_path):
+    assert searcher(
+        table="vault_storage",
+        columns=["*",],
+        column=("userid",),
+        data_to_search=1,
+        database_name=db_path,
+        userid=1
+    ) == [(1, 1, "test1", "test1.0.1", "test", "test", "test", "test1.0.1.1")]
 
     assert searcher(
         table="vault_storage",
-        columns=["cred_id", "UserID", "Service"],
-        column=("UserID",),
+        columns=["*",],
+        column=("userid",),
+        data_to_search=2,
         database_name=db_path,
-        data_to_search=3
-    ) == [(4, 3, "test3"), (5, 3, "test3.1"), (6, 3, "test3.2")]
-
-    assert searcher(
-            table="vault_storage",
-            columns=["cred_id"],
-            column=("UserID",),
-            database_name=db_path,
-            data_to_search=3
-        ) == [(4,), (5,), (6,)]
+        userid=2
+    ) == [
+            (2, 2, "test2", "test2.0.1", "test", "test", "test", "test2.0.1.1"),
+            (3, 2, "test2.1", "test2.1.1", "test", "test", "test", "test2.1.1.1")
+        ]
 
 def test_searcher_operation_error(db_path):
     with pytest.raises(errors.DatabaseError):
@@ -63,7 +67,8 @@ def test_searcher_operation_error(db_path):
         columns=["cred_id" "UserID", "Service"],
         column=("UserID",),
         database_name=db_path,
-        data_to_search=3
+        data_to_search=3,
+        userid=1
     )
 
 def test_searcher_wrong_sql(db_path):
@@ -73,7 +78,8 @@ def test_searcher_wrong_sql(db_path):
         columns=["cred_id","UserID", "Service"],
         column=("UserID",),
         database_name=db_path,
-        data_to_search=3
+        data_to_search=3,
+        userid=1
     )
 
 def test_searcher_wrong_type_tuple(db_path):
@@ -83,7 +89,8 @@ def test_searcher_wrong_type_tuple(db_path):
         columns=["cred_id","UserID", "Service"],
         column="UserID",
         database_name=db_path,
-        data_to_search=3
+        data_to_search=3,
+        userid=1
     )
 
 def test_searcher_wrong_type_list(db_path):
@@ -93,5 +100,6 @@ def test_searcher_wrong_type_list(db_path):
         columns="cred_id",
         column=("UserID",),
         database_name=db_path,
-        data_to_search=3
+        data_to_search=3,
+        userid=1
     )
