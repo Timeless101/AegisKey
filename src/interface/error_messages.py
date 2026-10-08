@@ -56,6 +56,9 @@ def print_password_dont_match():
 def print_wrong_password():
     CONSOLE.print("\n\n\n:warning: [bold red]ERROR![/bold red]:warning:\n[red]WRONG_PASSWORD_ENTERD[/]")
 
+def print_decryption_error():
+    CONSOLE.print("\n\n:warning: [bold red]ERROR![/bold red]:warning:\n [red]PASSWORD_COULD_NOT_BE_DECRYPTED[/]\nThe credential data may be corrupted.")
+
 def print_contact_support():
     return print("\nSomething went wrong, please contact support for further help.")
 
