@@ -53,10 +53,11 @@ class Search_flow:
         return self.pag.showing_items_end
 
     def reset_state(self):
+        self.state = False
         self.pag.reset_state()
 
     def get_total_cred(self):
-        return self.total_cred
+        return self.pag.total_cred
 
     def set_total_cred(self, new_total:int):
         self.pag.total_cred = new_total
