@@ -23,3 +23,22 @@ def test_create_tabale_raise_error(tmp_path):
             columns={"hello": "how are you?",
                      "what": "????",}
         )
+
+def test_create_table_happy_test(tmp_path):
+    db_path = tmp_path / "test.db"
+
+    assert create_table(
+        table_name="test",
+        columns={"hello":"TEXT", "hello": "TEXT"},
+        database_name=str(db_path)
+    ) is True
+
+def test_create_table_databseerror(tmp_path):
+    db_path = tmp_path / "test.db"
+
+    with pytest.raises(errors.TableCreationError):
+        create_table(
+            table_name="invalid-table-name",
+            columns={"hello": "TEXT", "hello": "TEXT"},
+            database_name=str(db_path)
+        )
