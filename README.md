@@ -139,8 +139,8 @@ tests/
 Python 3.14 is currently used for development.
 
 ```bash
-git clone https://github.com/Timeless101/Encrypted-CLI-password-vault.git
-cd Encrypted-CLI-password-vault
+git clone https://github.com/Timeless101/AegisKey.git
+cd AegisKey
 python -m pip install -r requirements.txt
 ```
 
