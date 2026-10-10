@@ -8,6 +8,9 @@ router = APIRouter(prefix="/credentials")
 @router.get("/")
 def hello():
     cred = get_screen_data(userid= 1, page_size=50, offset=0)
+
+    if cred is None: return []
+
     result = []
     for row in cred:
         credential = CredentialModel(

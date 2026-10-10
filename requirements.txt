@@ -1,7 +1,7 @@
-pystyle
-pytest
-rich
-cryptography
-inquirerpy
-pyperclip
-fastapi
+pystyle==2.9
+pytest==9.1.1
+rich==15.0.0
+cryptography==49.0.0
+InquirerPy==0.3.4
+pyperclip==1.11.0
+fastapi==0.143.0
