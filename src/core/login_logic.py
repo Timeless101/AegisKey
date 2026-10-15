@@ -62,23 +62,23 @@ def initialize_database_bystartup() -> bool:
             columns={
             "Id": "INTEGER UNIQUE PRIMARY KEY",
             "Email": "TEXT UNIQUE NOT NULL",
-            "Password": "TEXT NOT NULL",
-            "Salt": "TEXT NOT NULL",
-            "EncryptionSalt": "TEXT NOT NULL"},
+            "Password": "BLOB",
+            "Salt": "BLOB",
+            "EncryptionSalt": "BLOB"},
             )
 
         
         table2: bool = storage_logic.table_creator(
             table_name="vault_storage",
             columns={
-                "cred_id": "INTEGER PRIMARY KEY",
-                "UserID": "INTEGER NOT NULL",
+                "cred_id": "INTEGER UNIQUE PRIMARY KEY ",
+                "UserID": "INTEGER NOT NULL ",
                 "Service": "TEXT",
                 "Username": "TEXT",
-                "Password": "TEXT NOT NULL",
+                "Password": "BINARY",
                 "Comment": "TEXT",
-                "CreationDate": "DATE NOT NULL",
-                "EditedDate": "DATE NOT NULL", 
+                "CreationDate": "DATETIME NOT NULL",
+                "EditedDate": "DATETIME NOT NULL", 
             },
         )
 

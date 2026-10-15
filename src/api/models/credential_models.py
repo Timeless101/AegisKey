@@ -2,9 +2,10 @@ from pydantic import BaseModel
 
 
 class CredentialModel(BaseModel):
-    screen_number_id: int
     cred_id: int
+    userid: int
     service: str
     username: str
+    password: bytes
     comment: str
     EditedDate: str

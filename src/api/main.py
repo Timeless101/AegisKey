@@ -9,7 +9,7 @@ fastapi dev src/api/main.py
 http://127.0.0.1:8000/docs
 http://127.0.0.1:8000
 """
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from src.api.routers.credentials.credentials import router
 
 app = FastAPI()

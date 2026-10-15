@@ -1,5 +1,6 @@
 import sqlite3
 import src.common.errors as errors
+import time
 
 #Create database
 def create_database(database_name):
@@ -93,9 +94,10 @@ def searcher(table: str, columns: list, column: tuple, data_to_search: str, data
             raise errors.WrongDataTypeList("Columns isn't a list.")
 
         column = column[0]
-
-        column_str = ", ".join(columns)
+        if not columns == "*":
+            column_str = ", ".join(columns)
         query = f"SELECT {column_str} FROM {table} WHERE {column} = ? AND Userid = ?;"
+
         with sqlite3.connect(database_name) as connection:
             c = connection.cursor()
             c.execute(query, (data_to_search, userid))
