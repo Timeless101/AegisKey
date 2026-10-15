@@ -1,0 +1,26 @@
+[project]
+name = "aegiskey"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Timeless101", email = "djwuck123@hotmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "cryptography>=50.0.2",
+    "fastapi>=0.143.1",
+    "inquirerpy>=0.3.4",
+    "pydantic>=2.14.1",
+    "pyperclip>=1.11.0",
+    "pystyle>=2.9",
+    "pytest>=9.1.1",
+    "rich>=15.0.0",
+]
+
+[project.scripts]
+aegiskey = "aegiskey:main"
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14.0"]
+build-backend = "uv_build"
