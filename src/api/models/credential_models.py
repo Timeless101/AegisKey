@@ -8,4 +8,4 @@ class CredentialModel(BaseModel):
     username: str
     password: bytes
     comment: str
-    EditedDate: str
+    editeddate: str
