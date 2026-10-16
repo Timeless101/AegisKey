@@ -8,9 +8,6 @@ router = APIRouter(prefix="/credentials")
 @router.get("/{cred_id}")
 def get_item(cred_id: int):
 
-    if cred_id is None:
-            return {}
-
     credential = searcher(
         column=("cred_id",),
         columns=["*",],
