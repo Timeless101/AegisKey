@@ -1,18 +1,27 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import APIRouter, HTTPException
 from src.storage.storage_logic import searcher
 from src.api.models.credential_models import CredentialModel
 
 router = APIRouter(prefix="/credentials")
 
 
-@router.get("/cred_id")
+@router.get("/{cred_id}")
 def get_item(cred_id: int):
+
+    if cred_id is None:
+            return {}
+
     credential = searcher(
         column=("cred_id",),
         columns=["*",],
         data_to_search=cred_id,
         userid=1
-    )[0]
+    )
+
+    if credential is None:
+          raise HTTPException(status_code=404, detail="No credential found.")
+
+    credential= credential[0]
 
     result = CredentialModel(
         cred_id=credential[0],
@@ -23,8 +32,5 @@ def get_item(cred_id: int):
         comment=credential[5],
         editeddate=credential[6]
         )
-    
-    if cred_id is None:
-        return []
     
     return result
