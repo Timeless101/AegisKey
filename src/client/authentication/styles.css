@@ -1,33 +1,36 @@
 html, body {
-    margin: 0;
+
     height: 100%;
     background-color: #0b1f3A;
-    font-family: 'Geist';
-}
-
-.container{
-    display: grid;
-    grid-template-columns: auto auto auto;
-    grid-template-rows: auto auto auto;
-    height: 100%;
-    width: 100%;
-    }
-
-
-.container div{
-    height: 100%;
-    width: 100%;
-
-}
-
-.container div form label{
-    color: #1e2a36;
-}
-
-.middle_middle {
+    font-family: 'Geist Variable', sans-serif;
+    
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #d9e2ec;
-    height: 200px;
+}
+/*Charcoal #1e2a36 TEXT and UI elements. Provides clarity and contrast.*/
+/*Deep Navy #0b1f3a Primary brand color. Conveys trust, stability and security. */
+/* Midnight Blue #123b68 Supporting brand color. Adds depth and sophistication. */
+/* Cyan Accent #18c7F6 Key accent color. Used for highlights, CTAs and active states */
+/* Sfot silver #D9E2EC Neutral background and subtle UI elements. */
+
+
+#email_input, #pwd_input{
+    padding: 5%;
+    margin: 3% 0px;
+    color: #1e2a36;
+    border: None;
+    font-size: medium;
+    border-radius: 8px;
+}
+
+#login_btn{
+    width: 110%;
+    border: None;
+    margin: 4% 0px;
+    color: #1e2a36;
+    background-color: #18c7F6;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
 }

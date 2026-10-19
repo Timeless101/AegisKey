@@ -3,28 +3,15 @@
  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="images/logo.ico">
+    <link rel="ico" href="src\client\images\logo.ico">
     <link rel="stylesheet" href="styles.css">
     <title>AegisKey</title>
  </head>
  <body>
-      <div class="container">
-         <div class="top_left"></div>
-         <div class="top_middle"></div>
-         <div class="top_right"></div>
-         <div class="middle_left"></div>
-         <div class="middle_middle">
-            <form class="authentication">
-               <label for="email">E-mail</label><br>
-               <input type="email" required><br>
-               <label for="password">Password</label><br>
-               <input type="password" required><br>
-            </form>
-         </div>
-         <div class="middle_right"></div>
-         <div class="bottom_left"></div>
-         <div class="bottom_middle"></div>
-         <div class="bottom_right"></div>
-      </div>
+      <form class="authentication">
+         <input type="email" id="email_input" placeholder="Email address" required><br>
+         <input type="password" id="pwd_input" placeholder="Master password" required><br>
+         <input type="button" id="login_btn" value="Unlock Vault →">
+      </form>
  </body>
  </html>
