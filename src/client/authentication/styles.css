@@ -64,6 +64,12 @@ html, body {
     font-size: 18px;
     font-weight: 500;
     font-family: inherit;
+    transition-duration: 0.4s;
+    display: inline-block;
+}
+
+#login_btn:hover{
+    box-shadow:0 8px 16px 0 rgba(0,0,0,0.6)
 }
 
 .container{
