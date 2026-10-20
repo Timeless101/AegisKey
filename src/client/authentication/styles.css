@@ -40,5 +40,7 @@ html, body {
 .container{
     background-color: #D9E2EC;
     border-radius: 16px;
-    padding: 80%;
+    width: 320px;
+    padding: 24px;
+    box-sizing: border-box;
 }
