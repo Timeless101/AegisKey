@@ -50,7 +50,9 @@ html, body {
     cursor: pointer;
     border-radius: 8px;
     box-sizing: border-box;
-    font-family: 'Geist Variable', sans-serif;
+    font-family: 'Geist Variable', sans-serif, bold;
+    font-size: larger;
+    padding: 14px 16px;
 }
 
 .container{
@@ -63,7 +65,10 @@ html, body {
 
 .logo_image{
     width: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
+    margin-inline: auto;
+}
+
+.main_text{
+    text-align: center;
 }
