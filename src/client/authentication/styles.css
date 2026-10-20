@@ -24,6 +24,22 @@ html, body {
     width: 100%;
 }
 
+#email_input{
+    background-image: url('../images/email.png');
+    background-position: -5px -2px; 
+    background-repeat: no-repeat;
+    background-size: 50px 50px;
+    padding-left: 44px;
+}
+
+#pwd_input{
+    background-image: url('../images/lock.png');
+    background-position: -5px -5px; 
+    background-repeat: no-repeat;
+    background-size: 50px 50px;
+    padding-left: 40px;
+}
+
 #login_btn{
     width: 100%;
     border: None;
@@ -43,4 +59,11 @@ html, body {
     width: 320px;
     padding: 24px;
     box-sizing: border-box;
+}
+
+.logo_image{
+    width: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
