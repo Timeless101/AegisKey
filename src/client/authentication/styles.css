@@ -1,9 +1,7 @@
 html, body {
-
     height: 100%;
     background-color: #0b1f3A;
     font-family: 'Geist Variable', sans-serif;
-    
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,10 +20,12 @@ html, body {
     border: None;
     font-size: medium;
     border-radius: 8px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 #login_btn{
-    width: 110%;
+    width: 100%;
     border: None;
     margin: 4% 0px;
     color: #1e2a36;
@@ -33,4 +33,12 @@ html, body {
     text-align: center;
     cursor: pointer;
     border-radius: 8px;
+    box-sizing: border-box;
+    font-family: 'Geist Variable', sans-serif;
+}
+
+.container{
+    background-color: #D9E2EC;
+    border-radius: 16px;
+    padding: 80%;
 }
