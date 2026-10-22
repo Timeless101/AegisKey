@@ -2,10 +2,10 @@ from fastapi import APIRouter, HTTPException
 from src.storage.storage_logic import searcher
 from src.api.models.credential_models import CredentialModel
 
-router = APIRouter(prefix="/credentials")
+credential_router = APIRouter(prefix="/credentials")
 
 
-@router.get("/{cred_id}")
+@credential_router.get("/{cred_id}")
 def get_item(cred_id: int):
 
     credential = searcher(
