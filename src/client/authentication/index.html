@@ -6,12 +6,13 @@
     <link rel="icon" href="../images/logo.ico">
     <link rel="stylesheet" href="styles.css">
     <title>AegisKey</title>
+    <script src="auth.js" defer></script>
  </head>
  <body>
       <div class="container">
          <img class="logo_image" src="../images/AegisKey-logo-transparante.png" alt="Company logo">
             <p class="main_text">Your keys to a safer digital life.</p>
-               <form class="authentication">
+               <form id="authentication" onclick="test()">
                   <input type="email" id="email_input" placeholder="Email address" required><br>
                      <input type="password" id="pwd_input" placeholder="Master password" required><br>
                      <input type="submit" id="login_btn" value="Unlock Vault →">
