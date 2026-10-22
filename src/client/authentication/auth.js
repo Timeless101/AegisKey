@@ -1,11 +1,9 @@
-// Source - https://stackoverflow.com/a/41262933
-// Posted by Kevin Farrugia, modified by community. See post 'Timeline' for change history
-// Retrieved 2026-10-22, License - CC BY-SA 4.0
+function get_user_input(event) {
+    event.preventDefault()
 
-function test() {
-    let x = document.getElementById("email_input").value;
-    let y = document.getElementById("pwd_input").value;
+    let email_from_user = document.getElementById("email_input").value;
+    let pwd_from_user = document.getElementById("pwd_input").value;
 
-    console.log(x)
-    console.log(y)
+    console.log(email_from_user)
+    console.log(pwd_from_user)
 }

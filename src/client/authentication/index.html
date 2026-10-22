@@ -12,7 +12,7 @@
       <div class="container">
          <img class="logo_image" src="../images/AegisKey-logo-transparante.png" alt="Company logo">
             <p class="main_text">Your keys to a safer digital life.</p>
-               <form id="authentication" onclick="test()">
+               <form id="authentication" onsubmit="get_user_input(event)">
                   <input type="email" id="email_input" placeholder="Email address" required><br>
                      <input type="password" id="pwd_input" placeholder="Master password" required><br>
                      <input type="submit" id="login_btn" value="Unlock Vault →">
