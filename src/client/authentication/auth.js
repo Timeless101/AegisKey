@@ -4,6 +4,8 @@
 
 function test() {
     let x = document.getElementById("email_input").value;
+    let y = document.getElementById("pwd_input").value;
 
     console.log(x)
+    console.log(y)
 }
