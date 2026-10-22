@@ -4,10 +4,7 @@ async function get_user_input(event) {
     let email_from_user = document.getElementById("email_input").value;
     let pwd_from_user = document.getElementById("pwd_input").value;
 
-    const response =  await fetch("http://127.0.0.1:8000/credentials/13",
-        {
-            method: "GET"
-        }
-    )
-    console.log(response)
+   await fetch("http://127.0.0.1:8000/hello")
+   .then(response => response.json())
+   .then(data => console.log(data))
 }
