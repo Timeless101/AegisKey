@@ -18,6 +18,18 @@ venv/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 #Excule Single Files
 /src/test.py
+
+# Node.js dependencies
+node_modules/
+
+
+# Logs
+*.log
+
+# Build output
+dist/
