@@ -1,0 +1,19 @@
+body{
+    margin: 0%;
+
+}
+
+.container{
+    display: flex;
+    width: 100%;
+}
+
+.left-side-frame{
+    flex: 0 0 20%;
+    background: green;
+}
+
+.right-side-frame{
+    flex: 0 0 80%;
+    background: green;
+}
