@@ -61,3 +61,8 @@ html{
     object-fit: contain;
     flex-shrink: 0;
 }
+
+.right-inside-main-data{
+
+    background-color: green;
+}
