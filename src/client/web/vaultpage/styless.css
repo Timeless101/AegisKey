@@ -28,6 +28,7 @@ html{
     display: flex;
     align-items: center;
     gap: 12px;
+    min-height: 44px;
 }
 
 .left-inside-menu-selection p {
@@ -48,10 +49,15 @@ html{
     font-size: larger;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: space-between;
     align-items: stretch;
     text-align: left;
-    align-items: stretch;
-    text-align: left;
+}
+
+.left-inside-menu-selection img {
+    outline: 1px solid red;
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
