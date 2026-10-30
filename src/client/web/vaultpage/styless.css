@@ -24,18 +24,14 @@ html{
     background: #0b1f3a;
 }
 
-.left-inside-menu-selection{
-    margin-top: 15%;
-    margin-left: 0%;
-    display: grid;
-    width: 100%;
+.left-inside-menu-selection > div{
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.left-inside-menu-selection img{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
+.left-inside-menu-selection p {
+    margin: 0%;
 }
 
 .right-side-frame{
@@ -44,12 +40,18 @@ html{
 }
 
 .left-inside-menu-selection{
+    width: 100%;
+    margin-top: 15%;
+    margin-left: 0%;
     color: #D9E2EC;
-    text-align: center;
     padding: 5%;
     font-size: larger;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    align-items: stretch;
+    text-align: left;
+    align-items: stretch;
+    text-align: left;
 }
