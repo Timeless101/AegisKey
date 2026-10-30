@@ -38,6 +38,7 @@ html{
 .right-side-frame{
     flex: 0 0 80%;
     background: #D9E2EC;
+    display: flex;
 }
 
 .left-inside-menu-selection{
