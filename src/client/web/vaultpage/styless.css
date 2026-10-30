@@ -1,6 +1,17 @@
+/*Charcoal #1e2a36 TEXT and UI elements. Provides clarity and contrast.*/
+/*Deep Navy #0b1f3a Primary brand color. Conveys trust, stability and security. */
+/* Midnight Blue #123b68 Supporting brand color. Adds depth and sophistication. */
+/* Cyan Accent #18c7F6 Key accent color. Used for highlights, CTAs and active states */
+/* Sfot silver #D9E2EC Neutral background and subtle UI elements. */
+
 body{
     margin: 0%;
+    height: 100%;
+    display: flex;
+}
 
+html{
+    font-family: 'Geist Variable', sans-serif;
 }
 
 .container{
@@ -10,10 +21,35 @@ body{
 
 .left-side-frame{
     flex: 0 0 20%;
-    background: green;
+    background: #0b1f3a;
+}
+
+.left-inside-menu-selection{
+    margin-top: 15%;
+    margin-left: 0%;
+    display: grid;
+    width: 100%;
+}
+
+.left-inside-menu-selection img{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .right-side-frame{
     flex: 0 0 80%;
-    background: green;
+    background: #D9E2EC;
+}
+
+.left-inside-menu-selection{
+    color: #D9E2EC;
+    text-align: center;
+    padding: 5%;
+    font-size: larger;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
 }
