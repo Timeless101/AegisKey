@@ -4,6 +4,11 @@
 /* Cyan Accent #18c7F6 Key accent color. Used for highlights, CTAs and active states */
 /* Sfot silver #D9E2EC Neutral background and subtle UI elements. */
 
+* {
+    box-sizing: border-box;
+}
+
+
 body{
     margin: 0%;
     height: 100%;
@@ -54,6 +59,11 @@ html{
     height: 24px;
     object-fit: contain;
     flex-shrink: 0;
+}
+
+.company-logo{
+    max-width: 100%;
+    height: auto;
 }
 
 #new-item{
