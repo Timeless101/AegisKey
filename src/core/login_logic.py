@@ -120,7 +120,7 @@ def main_menu() -> str:
 #menu selection.
 def option_selection(option: str) -> tuple:
     dispatch_table: dict = {
-        "1": login_flow,
+        "1": cli_login,
         "2": sign_up_flow,
         "3": about,
         "4": exit_program,
@@ -128,15 +128,22 @@ def option_selection(option: str) -> tuple:
     func = dispatch_table.get(option)
     return func()
 
+
+def cli_login():
+    input_email, input_password = login_interface.login_screen()
+    encryption_key: bytes = sign_in_function(email=input_email, password=input_password)
+    return login_flow(input_email=input_email, encryption_key=encryption_key)
+
+def api_login(input_email: str, input_password: str):
+    encryption_key: bytes = sign_in_function(email=input_email, password=input_password)
+    return login_flow(input_email=input_email, encryption_key=encryption_key)
+
 #Login flow.
-def login_flow() -> tuple[str, int, bytes]:
+def login_flow(input_email: str, encryption_key: bytes) -> tuple[str, int, bytes]:
     clear_screen()
     try:
         while True:
             try:
-                input_email, input_password = login_interface.login_screen()
-                encryption_key: bytes = sign_in_function(email=input_email, password=input_password)
-
                 if not isinstance(encryption_key, bytes):
                     error_messages.print_internal_error()
                     sleep(5)
