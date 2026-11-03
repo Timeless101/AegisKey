@@ -26,21 +26,25 @@ export function setCSRF(token) {
 }
 export async function request(
   path,
-  { method = "GET", body, anonymous = false } = {},
+  { method = "GET", body, anonymous = false, credentials = "include" } = {},
 ) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.requestTimeoutMs);
   try {
     const headers = { Accept: "application/json" };
     if (body !== undefined) headers["Content-Type"] = "application/json";
-    if (!["GET", "HEAD"].includes(method) && csrfToken)
+    if (
+      !["GET", "HEAD"].includes(method) &&
+      csrfToken &&
+      credentials === "include"
+    )
       headers["X-CSRF-Token"] = csrfToken;
     const response = await fetch(
       `${config.apiBaseUrl.replace(/\/$/, "")}${path}`,
       {
         method,
         headers,
-        credentials: "include",
+        credentials,
         signal: controller.signal,
         ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
         cache: "no-store",

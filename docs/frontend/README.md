@@ -14,6 +14,28 @@ Open **http://localhost:5500**. Gebruik **Explore the demo vault** om zonder API
 
 De oude URLs `authentication/index.html` en `web/vaultpage/index.html` verwijzen automatisch naar de nieuwe app.
 
+### Je nieuwe loginroute testen
+
+Het normale formulier is nu gekoppeld aan je bestaande Python-logincontrole. De meegeleverde configuratie gebruikt:
+
+```js
+apiBaseUrl: "http://127.0.0.1:8000",
+loginMode: "prototype",
+```
+
+Start FastAPI (`fastapi dev src/api/main.py`) en de frontend in een tweede terminal. Open **http://localhost:5500** en vul een bestaand testaccount uit je eigen vaultdatabase in. **Test sign in** verstuurt `{ email, password }` naar `POST /auth/login`.
+
+- Correcte combinatie: bevestigingsscherm **Login details verified**, met het gecontroleerde emailadres en user-ID.
+- Onjuist emailadres/account/wachtwoord: generieke 401, foutmelding in hetzelfde formulier.
+- Het wachtwoordveld wordt na de request gewist, ook bij fouten. Alleen een expliciet aangevinkt Remember email bewaart het emailadres.
+- Dit prototype gebruikt geen cookies/tokens. Er is dus geen automatische `/auth/me`-aanroep, hervatting na refresh, of automatische vaulttoegang.
+
+De Python-route retourneerde eerder de hele CLI-tuple met de encryptiesleutel. Die response is vervangen door `{ verified: true, session_created: false, user: { id, email } }`. De route is nu letterlijk `/auth/login`, zonder de ongebruikte `/{login}`-pathparameter. Je bestaande `api_login`/CLI-verificatielogica is behouden. De frontend accepteert geen rauwe tuple, lege 200-response of ongeverifieerd resultaat als succes.
+
+**Dit is een werkende aansluiting op je logincontrole, nog geen volledige webauthenticatie.** Een user-ID uit die response is geen bewijs voor volgende requests. De beveiligde vervolgstap is een servergevalideerde sessie/token en ownershipchecks op alle credentialroutes. De losse API-test gebruikt nog steeds het bestaande `userid=1`-prototype en krijgt geen rechten door deze logincheck.
+
+In `prototype`-modus zijn registratie/herstel-links verborgen omdat je huidige route die functies nog niet levert. De bestaande `password`-modus met sessie-/CSRF-contract en de `redirect`-modus voor bijvoorbeeld Keycloak blijven voorbereid. Schakel pas om wanneer de backend die contracten werkelijk implementeert.
+
 ### Je bestaande FastAPI-route gebruiken
 
 Je bestaande `GET /credentials/{cred_id}` is aangesloten via **Open local test API** op de loginpagina. Standaard wordt daadwerkelijk `http://127.0.0.1:8000/credentials/3` opgehaald, niet een demo-item. Je hoeft daarvoor nog geen `/auth/me` of nieuwe `/items`-routes te bouwen.
@@ -70,6 +92,7 @@ window.AEGIS_CONFIG = Object.freeze({
 });
 ```
 
+- `prototype`: koppelt het formulier aan de huidige `/auth/login`-controle, met expliciete bevestiging zonder sessie. Dit is de standaard voor je huidige ontwikkelfase.
 - `password`: de eigen login-, registratie- en accountrecoveryformulieren gebruiken de gedocumenteerde JSON-endpoints. Er is ook een MFA-challengeformulier voor TOTP.
 - `redirect`: de inlog-/registratieknoppen gaan naar jouw backend, die de OIDC-login afhandelt. Dit past bijvoorbeeld bij een zelfgehoste Keycloak. De backend doet code exchange, valideert OIDC en zet een sessiecookie. De frontend verwerkt geen OAuth-codes of refresh tokens.
 - `enableDemo: false`: verwijdert de demoknop en blokkeert de demo-route. De backend mag nooit vertrouwen op deze clientinstelling als toegangscontrole.
@@ -99,6 +122,7 @@ Voor echte gebruikersgegevens is een onafhankelijke securityreview van de comple
 | `src/client/css/app.css` | Huisstijl, layout, mobile en dark mode |
 | `src/client/js/app.js` | Navigatie, formulieren, UI-state en sessieflow |
 | `src/client/js/api.js` | Alle HTTP-aanroepen, CSRF, timeouts en statusafhandeling |
+| `src/client/js/prototype-login.js` | Valideert de veilige prototype-loginresponse zonder een sessie te simuleren |
 | `src/client/js/demo.js` | Fictieve in-memory API-vervanger |
 | `src/client/js/utils.js` | Escaping, veilige URLs en generator |
 | `src/client/js/icons.js` | Scherpe SVG-interface-iconen |

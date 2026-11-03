@@ -1,6 +1,22 @@
 # Frontend ↔ FastAPI contract
 
-Dit is de **te implementeren** API voor de nieuwe webfrontend; de bestaande `/login/` en `/credentials/{cred_id}` voldoen hier nog niet aan. Je Python-services mogen hun huidige namen behouden. Gebruik een router/service-adapter voor de JSON-vormen hieronder.
+Dit is de **te implementeren** API voor de nieuwe webfrontend; de huidige prototype-login en `/credentials/{cred_id}` implementeren het volledige sessie-/vaultcontract nog niet. Je Python-services mogen hun huidige namen behouden. Gebruik een router/service-adapter voor de JSON-vormen hieronder.
+
+## Huidige logincontrole — al aangesloten
+
+Met `loginMode: "prototype"` gebruikt de frontend jouw bestaande `POST /auth/login` met `{ "email": "…", "password": "…" }`. De route controleert via je bestaande `api_login`, maar geeft **geen** sleutel terug:
+
+```json
+{
+  "verified": true,
+  "session_created": false,
+  "user": { "id": "7", "email": "qa@example.invalid" }
+}
+```
+
+Foutieve inloggegevens geven generiek HTTP 401. De frontend toont een bevestiging na succes, wist het ingevulde password en opent geen vault op basis van alleen die user-ID. Er wordt nog geen sessie/token uitgegeven; `credentials: "omit"` voorkomt cookie-/CSRF-lekkage naar de lokale testserver. Het huidige prototype werkt daarmee met de bestaande wildcard-CORS, zonder de productie-instellingen voor cookies te veranderen.
+
+Het sessieobject in de volgende hoofdstukken is het **toekomstige** contract voor `loginMode: "password"`, geen beschrijving van de huidige prototype-response. Bij de overstap naar sessies moet de backend ook alle vervolgrequests server-side autoriseren. `/credentials/3` blijft voorlopig een afzonderlijke, ongeauthenticeerde read-only test.
 
 ## Bestaande route werkt al als testkoppeling
 
@@ -73,7 +89,7 @@ Stel `loginMode: 'redirect'` in. In die modus zijn er geen lokale email/password
 
 Valideer `return_to` tegen een vaste allowlist; nooit een open redirect. Gebruik een bestaande OIDC-clientlibrary voor de serverintegratie. MFA, registratie, emailverificatie en recovery worden in deze modus door Keycloak afgehandeld. Dit contract levert de frontendhelft, geen complete OIDC-serverimplementatie.
 
-De bestaande Python-loginroute die inloggegevens print is geen veilige implementatie van dit contract. Sluit hem niet rechtstreeks als productie-authenticatie aan.
+De huidige Python-loginroute is een verificatieprototype zonder sessie. Hij stuurt geen encryptiesleutel terug, maar implementeert nog niet de volledige productie-authenticatie uit dit contract.
 
 ## Items
 

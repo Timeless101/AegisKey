@@ -2,6 +2,7 @@ import { icon } from "./icons.js";
 import { api, config, onUnauthorized, setCSRF } from "./api.js";
 import { createDemo } from "./demo.js";
 import { createLegacyApi } from "./legacy-api.js";
+import { checkPrototypeLogin } from "./prototype-login.js";
 import {
   escapeHTML as e,
   safeURL,
@@ -64,6 +65,7 @@ let modalTrigger = null;
 let drawerTrigger = null;
 let mfaChallenge = null;
 let authView = "login";
+let verifiedUser = null;
 let lockedNotice = "";
 let generated = "";
 let generatorOptions = {
@@ -238,6 +240,7 @@ function resetSession() {
   generated = "";
   authPending = false;
   mfaChallenge = null;
+  verifiedUser = null;
   document.querySelector("#toasts").replaceChildren();
 }
 onUnauthorized(() => {
@@ -276,7 +279,7 @@ async function busyForm(form, callback) {
 }
 
 function authLayout(content) {
-  return `<main id="main-content" class="auth-page"><aside class="auth-story" aria-label="About AegisKey"><span class="wordmark" role="img" aria-label="AegisKey"><img src="assets/mark.svg" alt="" width="35" height="35"><span aria-hidden="true">Aegis<span>Key</span></span></span><div class="story-content"><div class="story-label">${icon("shield")} A little more peace of mind</div><h1>Your digital life.<br>Your keys.<br><span>Your control.</span></h1><p>A quiet place for the things that matter. Keep your passwords, notes, and identities together in your own personal vault.</p><div class="story-features"><span>${icon("check")} Built for self-hosting</span><span>${icon("check")} Open source, by design</span></div></div><footer class="story-footer"><span>Independent. Personal. AegisKey.</span><a href="https://github.com/Timeless101/AegisKey" target="_blank" rel="noopener noreferrer">View on GitHub ${icon("external")}</a></footer></aside><section class="auth-main"><div class="auth-top" ${state.locked ? 'style="visibility:hidden"' : ""}><span>${authView === "register" ? "Already have an account?" : "New to AegisKey?"}</span><button class="text-btn" data-action="${authView === "register" ? "login-view" : "register-view"}">${authView === "register" ? "Sign in" : "Create an account"}</button></div><div class="auth-card">${content}</div><p class="auth-bottom">${icon("shield")} Your keys to a safer digital life.</p></section></main>`;
+  return `<main id="main-content" class="auth-page"><aside class="auth-story" aria-label="About AegisKey"><span class="wordmark" role="img" aria-label="AegisKey"><img src="assets/mark.svg" alt="" width="35" height="35"><span aria-hidden="true">Aegis<span>Key</span></span></span><div class="story-content"><div class="story-label">${icon("shield")} A little more peace of mind</div><h1>Your digital life.<br>Your keys.<br><span>Your control.</span></h1><p>A quiet place for the things that matter. Keep your passwords, notes, and identities together in your own personal vault.</p><div class="story-features"><span>${icon("check")} Built for self-hosting</span><span>${icon("check")} Open source, by design</span></div></div><footer class="story-footer"><span>Independent. Personal. AegisKey.</span><a href="https://github.com/Timeless101/AegisKey" target="_blank" rel="noopener noreferrer">View on GitHub ${icon("external")}</a></footer></aside><section class="auth-main"><div class="auth-top" ${state.locked || config.loginMode === "prototype" ? 'style="visibility:hidden"' : ""}><span>${authView === "register" ? "Already have an account?" : "New to AegisKey?"}</span><button class="text-btn" data-action="${authView === "register" ? "login-view" : "register-view"}">${authView === "register" ? "Sign in" : "Create an account"}</button></div><div class="auth-card">${content}</div><p class="auth-bottom">${icon("shield")} Your keys to a safer digital life.</p></section></main>`;
 }
 function passwordField(
   id,
@@ -293,7 +296,10 @@ function renderAuth(message = "") {
   const email = rememberedEmail();
   let content = "";
   const heading = `<img class="auth-logo" src="assets/mark.svg" alt="" width="58" height="58">`;
-  if (state.locked && state.needsSetup) {
+  if (authView === "verified" && verifiedUser && !state.user) {
+    content = `${heading}<h2>Login details verified.</h2><p class="muted">Your Python backend accepted your email and password.</p><div class="form-success" role="status"><strong>${e(verifiedUser.email)}</strong><br>User ID: ${e(verifiedUser.id)}</div><p class="auth-subtle">Your current login route checks credentials, but does not create a session or token yet. This result does not unlock or authorize access to a vault.</p><div class="form-stack" style="margin-top:24px"><button class="btn btn-primary full" data-action="login-view">Back to sign in</button>${config.enableLegacyTestApi ? '<button class="btn full" data-action="start-legacy">Open separate read-only API test</button>' : ""}</div>${config.enableLegacyTestApi ? '<p class="auth-subtle">The existing credential API test is separate from this login check.</p>' : ""}`;
+    document.title = "Login verified · AegisKey";
+  } else if (state.locked && state.needsSetup) {
     content = `${heading}<h2>Make this vault yours.</h2><p class="muted">Choose a separate password to unlock your vault.</p><form id="setup-form" class="form-stack">${passwordField("setup-password", "Vault password", "new-password", "Choose a long vault password")}<div class="field"><label for="setup-confirm">Confirm vault password</label><input id="setup-confirm" name="confirm" type="password" autocomplete="new-password" required maxlength="1024" data-secret placeholder="Repeat your vault password"></div><button type="submit" class="btn btn-primary full">Create my vault ${icon("arrow")}</button></form><p class="auth-subtle">Keep this password safe. Resetting your account password does not automatically restore access to your vault.</p><button class="text-btn" style="margin-top:18px" data-action="logout">Sign out instead</button>`;
   } else if (state.locked) {
     content = `<div class="lock-avatar">${icon("lock")}</div><h2>Your vault is locked</h2><p class="lock-email">${e(state.user?.email || "")}</p><form id="unlock-form" class="form-stack">${lockedNotice ? `<p class="form-error">${e(lockedNotice)}</p>` : ""}${state.demo ? '<p class="form-success">This is a demo vault. You can unlock it without a password.</p>' : passwordField("unlock-password", "Vault password", "current-password", "Enter your vault password")}<button type="submit" class="btn btn-primary full"><span>Unlock vault</span>${icon("arrow")}</button></form><p class="lock-note">${state.demo ? "Demo changes stay in memory until you refresh." : "Enter your vault password to continue your session."}<br><button class="text-btn" data-action="logout" style="margin-top:12px">Sign out instead</button></p>`;
@@ -306,7 +312,16 @@ function renderAuth(message = "") {
   } else if (authView === "mfa") {
     content = `${heading}<h2>One more step</h2><p class="muted">Enter the code from your authenticator app.</p><form id="mfa-form" class="form-stack"><div class="field"><label for="mfa-code">Authentication code</label><input id="mfa-code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,8}" minlength="6" maxlength="8" required placeholder="000000"></div><button type="submit" class="btn btn-primary full">Verify & continue ${icon("arrow")}</button><button type="button" class="btn btn-quiet" data-action="login-view">Back to sign in</button></form>`;
   } else {
-    content = `${heading}<h2>Welcome back.</h2><p class="muted">Your keys to a safer digital life.</p>${message ? `<div class="form-error" role="alert" style="margin-bottom:20px">${e(message)}</div>` : ""}${config.loginMode === "redirect" ? `<button class="btn btn-primary full" data-action="redirect-login">Continue to secure sign in ${icon("arrow")}</button><p class="auth-subtle">Sign in through your self-hosted identity provider. You will return here afterwards.</p>` : `<form id="login-form" class="form-stack"><div class="field"><label for="login-email">Email address</label><div class="input-icon">${icon("mail")}<input id="login-email" name="email" type="email" autocomplete="username" value="${e(email)}" required maxlength="254" placeholder="you@example.com"></div></div>${passwordField("login-password", "Account password")}<div class="auth-options"><label class="checkbox"><input type="checkbox" name="remember" ${email ? "checked" : ""}>Remember email</label><button class="text-btn" type="button" data-action="recover-view">Forgot password?</button></div><button type="submit" class="btn btn-primary full"><span>Sign in to your vault</span>${icon("arrow")}</button></form>`}${config.enableDemo ? `<div class="auth-demo"><p>Take a look around. No account needed.</p><button class="btn full" data-action="start-demo">${icon("bolt")} Explore the demo vault ${icon("arrow")}</button><p style="margin:10px 0 0;font-size:10px">Fictional data · Nothing is saved</p></div>` : ""}`;
+    content = `${heading}<h2>Welcome back.</h2><p class="muted">Your keys to a safer digital life.</p>${message ? `<div class="form-error" role="alert" style="margin-bottom:20px">${e(message)}</div>` : ""}${config.loginMode === "redirect" ? `<button class="btn btn-primary full" data-action="redirect-login">Continue to secure sign in ${icon("arrow")}</button><p class="auth-subtle">Sign in through your self-hosted identity provider. You will return here afterwards.</p>` : `<form id="login-form" class="form-stack"><div class="field"><label for="login-email">Email address</label><div class="input-icon">${icon("mail")}<input id="login-email" name="email" type="email" autocomplete="username" value="${e(email)}" required maxlength="254" placeholder="you@example.com"></div></div>${passwordField("login-password", config.loginMode === "prototype" ? "Vault login password" : "Account password")}<div class="auth-options"><label class="checkbox"><input type="checkbox" name="remember" ${email ? "checked" : ""}>Remember email</label>${config.loginMode === "prototype" ? "" : '<button class="text-btn" type="button" data-action="recover-view">Forgot password?</button>'}</div><button type="submit" class="btn btn-primary full"><span>${config.loginMode === "prototype" ? "Test sign in" : "Sign in to your vault"}</span>${icon("arrow")}</button></form>`}${config.enableDemo ? `<div class="auth-demo"><p>Take a look around. No account needed.</p><button class="btn full" data-action="start-demo">${icon("bolt")} Explore the demo vault ${icon("arrow")}</button><p style="margin:10px 0 0;font-size:10px">Fictional data · Nothing is saved</p></div>` : ""}`;
+  }
+  if (
+    !state.locked &&
+    authView === "login" &&
+    config.loginMode === "prototype"
+  ) {
+    const note =
+      '<p class="field-help" style="margin-top:16px">Development login: verifies your existing Python route. Server sessions are not connected yet.</p>';
+    content = content.replace("</form>", "</form>" + note);
   }
   if (!state.locked && authView === "login" && config.enableLegacyTestApi) {
     const testChoice = `<div class="auth-demo"><p>Connect to your existing FastAPI prototype.</p><button class="btn full" data-action="start-legacy">${icon("key")} Open local test API ${icon("arrow")}</button><p style="margin:10px 0 0;font-size:10px">Live test data · Read-only · No login required</p></div>`;
@@ -865,6 +880,7 @@ document.addEventListener("click", async (event) => {
     )
   ) {
     mfaChallenge = null;
+    verifiedUser = null;
     authView = action.split("-")[0];
     renderAuth();
     return;
@@ -1156,7 +1172,9 @@ document.addEventListener("submit", (event) => {
     if (form.id === "login-form") {
       let result;
       try {
-        result = await api.login({
+        const submitLogin =
+          config.loginMode === "prototype" ? checkPrototypeLogin : api.login;
+        result = await submitLogin({
           email: data.email,
           password: data.password,
         });
@@ -1165,6 +1183,13 @@ document.addEventListener("submit", (event) => {
         data.password = "";
       }
       if (version !== epoch) return;
+      if (config.loginMode === "prototype") {
+        verifiedUser = result;
+        rememberEmail(data.email, Boolean(data.remember));
+        authView = "verified";
+        renderAuth();
+        return;
+      }
       if (result?.mfa_required) {
         if (!result.challenge_id)
           throw new Error(
@@ -1491,6 +1516,10 @@ async function initialize() {
     location.hash = "/login";
   if (config.enableDemo && location.hash === "#/demo") {
     await startDemo();
+    return;
+  }
+  if (config.loginMode === "prototype") {
+    renderAuth();
     return;
   }
   try {

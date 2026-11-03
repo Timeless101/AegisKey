@@ -48,3 +48,12 @@ Alle **11 Node-tests slagen** (`node --test src/client/tests/*.test.js`). De dri
 Browsercheck met een **fictieve HTTP-fixture**, niet met de database van de gebruiker: item 3 verschijnt in de lijst, details tonen service/username/comment en een melding dat het password versleuteld is. Er zijn geen edit/delete/favorite/reveal-knoppen. Kopieerknop heet Copy username. Leave test keert terug naar de loginpagina, waar Open local test API en Explore demo apart staan.
 
 De persoonlijke lokaal draaiende FastAPI-server van de gebruiker is vanuit de bouwomgeving niet bereikbaar. De actuele route en het model zijn vanaf GitHub gelezen en de aansluiting is tegen die responsevorm getest. De laatste controle op de eigen database gebeurt lokaal met de gedocumenteerde startcommando's. Python en CORS-code zijn niet gewijzigd.
+
+
+## Aanvulling — 3 november 2026: prototype-login
+
+- **13 JavaScript-tests geslaagd**: eerdere elf plus controle van de POST-/cookie-/CSRF-vorm en het weigeren van rauwe sleuteltuples, null/lege responses en resultaten die geen prototype-verificatie zijn.
+- **5 Python-routetests geslaagd**: FastAPI TestClient draait het echte router/model met een gestubde CLI/databasegrens. Correcte veldmapping; geen sleutel/password/Set-Cookie in succesresponse; generieke 401 voor onbekend account, verkeerd emailformaat en verkeerd password; 422 bij ontbrekende velden; onbekende `/auth/*`-paden matchen niet langer de loginroute.
+- Geïsoleerde testomgeving: Python 3.12, FastAPI 0.162.0, Pydantic 2.14.2 en pytest 9.2.0. Geen projectdependencies/lockfile aangepast. Dit is geen volledige run van de bestaande CLI-suite of productie-authenticatie.
+- Browserfixture: formulier met fictieve invoer, 401 blijft op formulier en wist password; succes toont alleen verified user/email en expliciet geen sessie. De browserfixture is niet de persoonlijke database. De daadwerkelijke Python-route is afzonderlijk met TestClient getest.
+- De nieuwe kernfunctie `api_login` en CLI-flow zijn niet herschreven. De loginroute retourneert alleen een veilige allowlist; er is geen sessiecookie of vaultautorisatie toegevoegd.
