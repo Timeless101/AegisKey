@@ -2,6 +2,9 @@ const defaults = {
   apiBaseUrl: "/api",
   loginMode: "password",
   enableDemo: true,
+  enableLegacyTestApi: false,
+  legacyApiBaseUrl: "http://127.0.0.1:8000",
+  legacyCredentialIds: [3],
   requestTimeoutMs: 15000,
 };
 export const config = { ...defaults, ...window.AEGIS_CONFIG };

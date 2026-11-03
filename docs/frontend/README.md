@@ -14,6 +14,33 @@ Open **http://localhost:5500**. Gebruik **Explore the demo vault** om zonder API
 
 De oude URLs `authentication/index.html` en `web/vaultpage/index.html` verwijzen automatisch naar de nieuwe app.
 
+### Je bestaande FastAPI-route gebruiken
+
+Je bestaande `GET /credentials/{cred_id}` is aangesloten via **Open local test API** op de loginpagina. Standaard wordt daadwerkelijk `http://127.0.0.1:8000/credentials/3` opgehaald, niet een demo-item. Je hoeft daarvoor nog geen `/auth/me` of nieuwe `/items`-routes te bouwen.
+
+1. Start je bestaande API vanuit de repository-root: `fastapi dev src/api/main.py`.
+2. Start in een tweede terminal de frontend met het bovenstaande `http.server`-commando.
+3. Open **http://localhost:5500/#/test-api**, of klik **Open local test API** op de loginpagina.
+4. Open het item in de lijst om service, gebruikersnaam en opmerkingen uit je eigen endpoint te bekijken.
+
+Staat de server uit of bestaat credential 3 niet? Dan toont de frontend de fout met **Try again**. Er worden geen demogegevens als vervanging gebruikt. Zoeken/filteren werkt op de werkelijk opgehaalde items. Er is nog geen lijstendpoint: alleen de in `config.js` genoemde IDs worden opgehaald; de frontend probeert geen andere IDs uit.
+
+De adapter staat in `src/client/js/legacy-api.js`. `cred_id → id`, `service → name`, `comment → notes`, `editeddate → updated_at`. De velden `userid` en `password` worden niet in de UI-state overgenomen. Een `created_at` ontbreekt in deze response en wordt als Unknown getoond. Personal is uitsluitend een weergavestandaard; de bestaande API levert geen collection- of favoriteveld.
+
+Deze aansluiting is **alleen-lezen en zonder authenticatie**, net als je huidige route met de vaste `userid=1`. Knoppen voor toevoegen, wijzigen, verwijderen, favorites en reveal zijn hier niet beschikbaar. Kopiëren kopieert de gebruikersnaam. De Fernet-waarde wordt niet als plaintext-password getoond of gekopieerd. Er zijn geen neplogin, nieuwe Python-endpoints of lokale schrijfopslag toegevoegd.
+
+Instellingen in `src/client/config.js`:
+
+```js
+enableLegacyTestApi: true,
+legacyApiBaseUrl: "http://127.0.0.1:8000",
+legacyCredentialIds: [3],
+```
+
+De GET-request gebruikt `credentials: "omit"`, zonder Authorization/CSRF-headers. Daardoor past hij bij je huidige wildcard-CORS-prototype, zonder een productiecookie naar de testserver te sturen. Voor mobiel verwijst `127.0.0.1` naar de telefoon zelf: stel dan het bereikbare LAN-adres van je ontwikkelmachine in, met een expliciet toegankelijke testserver en passende CORS. Bij een HTTPS-frontend kan een HTTP-API door de browser worden geblokkeerd; begin lokaal met de bovenstaande URLs.
+
+Zet **`enableLegacyTestApi: false`** wanneer je de echte beveiligde API gebruikt. De normale sessie-/CSRF-flow blijft los van deze testkoppeling. De bestaande route is door deze frontendwijziging niet ineens beveiligd.
+
 ### Wat werkt zonder backend?
 
 - Expliciete demo met acht fictieve items, uitsluitend in het geheugen.
@@ -31,13 +58,14 @@ Demo-items, gewijzigde gegevens en gegenereerde wachtwoorden worden **niet opges
 
 Lees eerst [API_CONTRACT.md](API_CONTRACT.md). De huidige Python-voorbeeldroutes in deze repository implementeren dat contract nog niet. De frontend doet **geen** alsof-login wanneer die routes ontbreken. Een serverfout houdt je op de loginpagina; de demoknop is een aparte, herkenbare keuze.
 
-Alle requests staan in `src/client/js/api.js`. De interface staat in `app.js`; voeg daar geen losse `fetch`-aanroepen toe. Stel in `src/client/config.js` de API-prefix en loginmethode in:
+Alle normale requests staan in `src/client/js/api.js`; de bestaande credential-test gebruikt `legacy-api.js`. De interface staat in `app.js`; voeg daar geen losse `fetch`-aanroepen toe. Stel in `src/client/config.js` de API-prefix en loginmethode in:
 
 ```js
 window.AEGIS_CONFIG = Object.freeze({
   apiBaseUrl: '/api',
   loginMode: 'redirect',
   enableDemo: false,
+  enableLegacyTestApi: false,
   requestTimeoutMs: 15000,
 });
 ```

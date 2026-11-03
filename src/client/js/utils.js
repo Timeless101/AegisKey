@@ -22,6 +22,7 @@ export function displayHost(value) {
   }
 }
 export function formatDate(value) {
+  if (!value) return "Unknown";
   const d = new Date(value);
   return Number.isNaN(d.getTime())
     ? "Unknown"

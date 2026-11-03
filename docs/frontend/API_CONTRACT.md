@@ -2,6 +2,10 @@
 
 Dit is de **te implementeren** API voor de nieuwe webfrontend; de bestaande `/login/` en `/credentials/{cred_id}` voldoen hier nog niet aan. Je Python-services mogen hun huidige namen behouden. Gebruik een router/service-adapter voor de JSON-vormen hieronder.
 
+## Bestaande route werkt al als testkoppeling
+
+De frontend bevat daarnaast een afzonderlijke, ingeschakelde lokale testadapter voor je huidige `GET /credentials/3`. Die staat in `legacy-api.js` en vereist het nieuwe contract hieronder niet. Open `/#/test-api` of kies **Open local test API**. Het resultaat wordt naar de veldnamen van de frontend vertaald; de versleutelde passwordwaarde wordt niet getoond. De koppeling is alleen-lezen en geeft geen geauthenticeerde sessie. Voor de opties en startcommando's: [README](README.md#je-bestaande-fastapi-route-gebruiken).
+
 ## Basis
 
 - Publieke prefix standaard `/api`; requests in dit document zijn relatief daaraan.

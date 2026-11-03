@@ -1,6 +1,7 @@
 import { icon } from "./icons.js";
 import { api, config, onUnauthorized, setCSRF } from "./api.js";
 import { createDemo } from "./demo.js";
+import { createLegacyApi } from "./legacy-api.js";
 import {
   escapeHTML as e,
   safeURL,
@@ -40,6 +41,7 @@ preferences.view = preferences.view === "grid" ? "grid" : "list";
 let state = {
   user: null,
   demo: false,
+  legacyTest: false,
   locked: false,
   needsSetup: false,
   route: "vault",
@@ -227,6 +229,7 @@ function resetSession() {
     query: "",
     selected: null,
     demo: false,
+    legacyTest: false,
     locked: false,
     needsSetup: false,
   };
@@ -305,6 +308,16 @@ function renderAuth(message = "") {
   } else {
     content = `${heading}<h2>Welcome back.</h2><p class="muted">Your keys to a safer digital life.</p>${message ? `<div class="form-error" role="alert" style="margin-bottom:20px">${e(message)}</div>` : ""}${config.loginMode === "redirect" ? `<button class="btn btn-primary full" data-action="redirect-login">Continue to secure sign in ${icon("arrow")}</button><p class="auth-subtle">Sign in through your self-hosted identity provider. You will return here afterwards.</p>` : `<form id="login-form" class="form-stack"><div class="field"><label for="login-email">Email address</label><div class="input-icon">${icon("mail")}<input id="login-email" name="email" type="email" autocomplete="username" value="${e(email)}" required maxlength="254" placeholder="you@example.com"></div></div>${passwordField("login-password", "Account password")}<div class="auth-options"><label class="checkbox"><input type="checkbox" name="remember" ${email ? "checked" : ""}>Remember email</label><button class="text-btn" type="button" data-action="recover-view">Forgot password?</button></div><button type="submit" class="btn btn-primary full"><span>Sign in to your vault</span>${icon("arrow")}</button></form>`}${config.enableDemo ? `<div class="auth-demo"><p>Take a look around. No account needed.</p><button class="btn full" data-action="start-demo">${icon("bolt")} Explore the demo vault ${icon("arrow")}</button><p style="margin:10px 0 0;font-size:10px">Fictional data · Nothing is saved</p></div>` : ""}`;
   }
+  if (!state.locked && authView === "login" && config.enableLegacyTestApi) {
+    const testChoice = `<div class="auth-demo"><p>Connect to your existing FastAPI prototype.</p><button class="btn full" data-action="start-legacy">${icon("key")} Open local test API ${icon("arrow")}</button><p style="margin:10px 0 0;font-size:10px">Live test data · Read-only · No login required</p></div>`;
+    const demoPosition = content.indexOf('<div class="auth-demo">');
+    content =
+      demoPosition < 0
+        ? content + testChoice
+        : content.slice(0, demoPosition) +
+          testChoice +
+          content.slice(demoPosition);
+  }
   app.innerHTML = authLayout(content);
   if (authPending)
     app
@@ -339,6 +352,55 @@ async function acceptSession(data) {
     await loadItems();
   }
 }
+async function startLegacy() {
+  if (!config.enableLegacyTestApi) return;
+  resetSession();
+  try {
+    service = createLegacyApi();
+    state.legacyTest = true;
+    // This is a display context, NOT a successfully authenticated account.
+    state.user = {
+      id: "local-api-test",
+      name: "Local API test",
+      email: "Read-only · no authentication",
+      mfa_enabled: false,
+    };
+    state.route = "vault";
+    state.page = 1;
+    state.tab = "all";
+    state.sort = "name";
+    lastActivity = Date.now();
+    location.hash = "/test-api";
+    renderShell();
+    await loadItems();
+  } catch (error) {
+    resetSession();
+    authView = "login";
+    renderAuth(error.message);
+  }
+}
+function applyLegacyPresentation() {
+  if (!state.legacyTest) return;
+  app
+    .querySelectorAll(
+      '[data-action="new-item"], [data-action="favorite"], [data-action="edit-item"], [data-action="delete-item"]',
+    )
+    .forEach((button) => button.remove());
+  app.querySelectorAll('[data-action="quick-copy"]').forEach((button) => {
+    button.setAttribute("aria-label", "Copy username");
+    button.setAttribute("title", "Copy username");
+  });
+  const passwordField = app
+    .querySelector("#detail-password")
+    ?.closest(".detail-field");
+  if (passwordField)
+    passwordField.innerHTML =
+      '<div><label>Password</label><div class="detail-value muted">Encrypted value returned by Python. Reveal is not connected yet.</div></div>';
+  const drawerFooter = app.querySelector(".drawer-footer");
+  if (drawerFooter)
+    drawerFooter.innerHTML =
+      '<button class="btn" data-action="close-drawer">Close details</button>';
+}
 async function startDemo() {
   resetSession();
   state.demo = true;
@@ -360,7 +422,7 @@ async function startDemo() {
   await loadItems();
 }
 function sidebar() {
-  return `<div class="menu-overlay" data-action="close-menu"></div><aside class="sidebar" id="sidebar" aria-label="Main navigation"><a class="sidebar-logo" href="#/vault" aria-label="AegisKey home"><span class="wordmark" aria-hidden="true"><img src="assets/mark.svg" alt="" width="35" height="35"><span>Aegis<span>Key</span></span></span></a><p class="sidebar-section">WORKSPACE</p><nav>${navigation.map(([route, name, label]) => `<a class="nav-link ${state.route === route ? "active" : ""}" href="#/${route}" ${state.route === route ? 'aria-current="page"' : ""}>${icon(name)}<span>${label}</span><span class="nav-count">${countFor(route)}</span></a>`).join("")}</nav><p class="sidebar-section">COLLECTIONS</p><nav><a class="nav-link ${state.route === "personal" ? "active" : ""}" href="#/personal"><span class="collection-dot"></span>Personal<span class="nav-count">${state.items.filter((x) => x.collection === "Personal").length}</span></a><a class="nav-link ${state.route === "work" ? "active" : ""}" href="#/work"><span class="collection-dot work"></span>Work<span class="nav-count">${state.items.filter((x) => x.collection === "Work").length}</span></a></nav><p class="sidebar-section">TOOLS</p><nav><a class="nav-link ${state.route === "generator" ? "active" : ""}" href="#/generator">${icon("bolt")}Password generator</a><a class="nav-link ${state.route === "settings" ? "active" : ""}" href="#/settings">${icon("settings")}Settings</a></nav><div class="sidebar-bottom"><div class="sidebar-security">${icon("shield")}<div><strong>${state.demo ? "Demo workspace" : "Your personal workspace"}</strong><span>${state.demo ? "Fictional data · This session only" : "Self-hosted. Independently yours."}</span></div></div><div class="sidebar-account"><div class="avatar">${e(initials(state.user.name))}</div><div class="account-info"><strong>${e(state.user.name)}</strong><span>${e(state.user.email)}</span></div>${ui.iconButton("logout", "Sign out", "logout")}</div></div></aside>`;
+  return `<div class="menu-overlay" data-action="close-menu"></div><aside class="sidebar" id="sidebar" aria-label="Main navigation"><a class="sidebar-logo" href="#/vault" aria-label="AegisKey home"><span class="wordmark" aria-hidden="true"><img src="assets/mark.svg" alt="" width="35" height="35"><span>Aegis<span>Key</span></span></span></a><p class="sidebar-section">WORKSPACE</p><nav>${navigation.map(([route, name, label]) => `<a class="nav-link ${state.route === route ? "active" : ""}" href="#/${route}" ${state.route === route ? 'aria-current="page"' : ""}>${icon(name)}<span>${label}</span><span class="nav-count">${countFor(route)}</span></a>`).join("")}</nav><p class="sidebar-section">COLLECTIONS</p><nav><a class="nav-link ${state.route === "personal" ? "active" : ""}" href="#/personal"><span class="collection-dot"></span>Personal<span class="nav-count">${state.items.filter((x) => x.collection === "Personal").length}</span></a><a class="nav-link ${state.route === "work" ? "active" : ""}" href="#/work"><span class="collection-dot work"></span>Work<span class="nav-count">${state.items.filter((x) => x.collection === "Work").length}</span></a></nav><p class="sidebar-section">TOOLS</p><nav><a class="nav-link ${state.route === "generator" ? "active" : ""}" href="#/generator">${icon("bolt")}Password generator</a><a class="nav-link ${state.route === "settings" ? "active" : ""}" href="#/settings">${icon("settings")}Settings</a></nav><div class="sidebar-bottom"><div class="sidebar-security">${icon("shield")}<div><strong>${state.legacyTest ? "Local API test" : state.demo ? "Demo workspace" : "Your personal workspace"}</strong><span>${state.legacyTest ? "Live test data · Read-only" : state.demo ? "Fictional data · This session only" : "Self-hosted. Independently yours."}</span></div></div><div class="sidebar-account"><div class="avatar">${e(initials(state.user.name))}</div><div class="account-info"><strong>${e(state.user.name)}</strong><span>${e(state.user.email)}</span></div>${ui.iconButton("logout", "Sign out", "logout")}</div></div></aside>`;
 }
 function countFor(route) {
   return state.items.filter(
@@ -375,15 +437,22 @@ function countFor(route) {
 function renderShell() {
   if (!state.user || state.locked) return;
   document.title = `${currentTitle()} · AegisKey`;
-  app.innerHTML = `<div class="app-shell">${sidebar()}<div class="workspace"><header class="topbar">${ui.iconButton("menu", "Open navigation", "open-menu", 'aria-controls="sidebar" aria-expanded="false"').replace('class="icon-btn"', 'class="icon-btn mobile-menu"')}<div class="breadcrumb"><span>Workspace</span>${icon("chevron")}<strong>${e(currentTitle())}</strong></div><div class="topbar-actions"><span class="status"><i class="dot"></i>${state.demo ? "Demo mode" : "Vault unlocked"}</span><button class="btn topbar-lock" data-action="lock">${icon("lock")} Lock vault</button></div></header><main id="main-content" class="content" tabindex="-1">${state.route === "generator" ? generatorPage() : state.route === "settings" ? settingsPage() : vaultPage()}</main></div></div>`;
+  app.innerHTML = `<div class="app-shell">${sidebar()}<div class="workspace"><header class="topbar">${ui.iconButton("menu", "Open navigation", "open-menu", 'aria-controls="sidebar" aria-expanded="false"').replace('class="icon-btn"', 'class="icon-btn mobile-menu"')}<div class="breadcrumb"><span>Workspace</span>${icon("chevron")}<strong>${e(currentTitle())}</strong></div><div class="topbar-actions"><span class="status"><i class="dot"></i>${state.legacyTest ? "Local API test" : state.demo ? "Demo mode" : "Vault unlocked"}</span><button class="btn topbar-lock" data-action="lock">${icon("lock")} ${state.legacyTest ? "Leave test" : "Lock vault"}</button></div></header><main id="main-content" class="content" tabindex="-1">${state.route === "generator" ? generatorPage() : state.route === "settings" ? settingsPage() : vaultPage()}</main></div></div>`;
   if (!["generator", "settings"].includes(state.route)) renderResults();
   if (state.route === "generator") updateGenerated();
   syncMobileNavigation();
+  applyLegacyPresentation();
 }
 function pageHeading(title, subtitle, action = "") {
   return `<div class="page-heading"><div><div class="heading-label"><h1>${e(title)}</h1>${!["generator", "settings"].includes(state.route) ? `<span class="item-total">${baseItems().length}</span>` : ""}</div><p>${e(subtitle)}</p></div>${action}</div>`;
 }
 function demoBanner() {
+  if (state.legacyTest) {
+    const paths = config.legacyCredentialIds
+      .map((id) => `/credentials/${id}`)
+      .join(", ");
+    return `<div class="demo-banner">${icon("info")}<span>Local API test · GET ${e(paths)} · Read-only, without authentication. Personal is a display default.</span><button class="text-btn" data-action="logout">Leave test</button></div>`;
+  }
   return state.demo
     ? `<div class="demo-banner">${icon("info")}<span>You're exploring a demo vault. Changes are temporary — please use fictional data only.</span><button class="text-btn" data-action="exit-demo">Exit demo</button></div>`
     : "";
@@ -461,8 +530,9 @@ function renderResults() {
   const items = all.slice((state.page - 1) * pageSize, state.page * pageSize);
   if (!items.length) {
     const search = Boolean(state.query || state.tab !== "all");
-    root.innerHTML = `<div class="empty-state"><div class="empty-icon">${icon(search ? "search" : "folder")}</div><h3>${search ? "Nothing found just yet" : "Make yourself at home"}</h3><p>${search ? "Try a different search or clear your filters." : "Add your first item to start building your personal vault."}</p><button class="btn ${search ? "" : "btn-primary"}" data-action="${search ? "clear-search" : "new-item"}">${icon(search ? "refresh" : "plus")}${search ? "Clear search & filters" : "Add your first item"}</button></div>`;
+    root.innerHTML = `<div class="empty-state"><div class="empty-icon">${icon(search ? "search" : "folder")}</div><h3>${search ? "Nothing found just yet" : state.legacyTest ? "No configured credentials in this view" : "Make yourself at home"}</h3><p>${search ? "Try a different search or clear your filters." : state.legacyTest ? "This test loads only the credential IDs configured in config.js. Return to All items to see them." : "Add your first item to start building your personal vault."}</p><button class="btn ${search ? "" : "btn-primary"}" data-action="${search ? "clear-search" : "new-item"}">${icon(search ? "refresh" : "plus")}${search ? "Clear search & filters" : "Add your first item"}</button></div>`;
     foot.innerHTML = "";
+    applyLegacyPresentation();
     return;
   }
   root.innerHTML =
@@ -470,6 +540,7 @@ function renderResults() {
       ? `<div class="item-grid">${items.map((item) => itemCard(item)).join("")}</div>`
       : `<div class="table-head" aria-hidden="true"><span>Name</span><span class="column-username">Username</span><span>Collection</span><span class="column-date">Updated</span><span></span></div><div class="items-list">${items.map((item) => itemRow(item)).join("")}</div>`;
   foot.innerHTML = `<div class="panel-footer"><span>Showing ${(state.page - 1) * pageSize + 1}–${Math.min(state.page * pageSize, all.length)} of ${all.length} items</span><div class="pagination"><button class="btn btn-quiet" data-action="previous-page" ${state.page === 1 ? "disabled" : ""} aria-label="Previous page">Previous</button><span class="page-current">${state.page} / ${totalPages}</span><button class="btn btn-quiet" data-action="next-page" ${state.page === totalPages ? "disabled" : ""} aria-label="Next page">Next</button></div></div>`;
+  applyLegacyPresentation();
 }
 function collectionTag(item) {
   return `<span class="collection-tag ${item.collection === "Work" ? "work" : ""}">${e(item.collection || "Personal")}</span>`;
@@ -526,7 +597,10 @@ async function quickCopy(id) {
   if (!item) return;
   try {
     let value;
-    if (item.type === "login") {
+    if (state.legacyTest) {
+      const data = await service.item(id);
+      value = data.username;
+    } else if (item.type === "login") {
       const data = await service.reveal(id);
       value = data.password;
     } else {
@@ -565,6 +639,7 @@ function renderDrawer(item) {
   root.innerHTML = `<div class="drawer-backdrop" data-action="close-drawer"></div><section class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="detail-title"><header class="drawer-header"><span>${e(typeLabels[item.type])} details</span><div class="drawer-actions">${ui.iconButton("star", item.favorite ? "Remove from favorites" : "Add to favorites", "favorite", `data-id="${e(item.id)}" aria-pressed="${Boolean(item.favorite)}"`)}${ui.iconButton("close", "Close item details", "close-drawer")}</div></header><div class="drawer-body"><div class="detail-hero">${brand(item)}<div><h2 id="detail-title">${e(item.name)}</h2><p>${e(typeLabels[item.type])} · ${e(item.collection || "Personal")}</p></div></div><p class="detail-section-label">${item.type === "identity" ? "Personal information" : "Item information"}</p>${item.type === "login" ? `${detailField("Username", item.username, "copy-field", 'data-field="username"')}<div class="detail-field"><div><label>Password</label><div class="detail-value mono" data-secret id="detail-password">••••••••••••</div></div>${ui.iconButton("eye", "Reveal password", "reveal-password", `data-id="${e(item.id)}"`)}${ui.iconButton("copy", "Copy password", "quick-copy", `data-id="${e(item.id)}"`)}</div>${detailField("Website", item.url)}${safeURL(item.url) ? `<a class="btn btn-quiet" style="font-size:11px;margin-top:10px" href="${e(safeURL(item.url))}" target="_blank" rel="noopener noreferrer">Open website ${icon("external")}</a>` : ""}` : item.type === "identity" ? `${detailField("Full name", item.full_name)}${detailField("Email", item.username, "copy-field", 'data-field="username"')}${detailField("Phone", item.phone)}${detailField("Address", item.address)}` : ""}<p class="detail-section-label">${item.type === "note" ? "Secure note" : "Notes"}</p><div class="detail-notes">${e(item.notes || "No notes added.")}</div><p class="detail-time">Created ${e(formatDate(item.created_at))}<br>Last updated ${e(formatDate(item.updated_at))}</p></div><footer class="drawer-footer"><button class="btn" data-action="edit-item" data-id="${e(item.id)}">${icon("edit")} Edit item</button><button class="btn btn-danger" data-action="delete-item" data-id="${e(item.id)}">${icon("trash")} Delete</button></footer></section>`;
   document.querySelector(".app-shell")?.setAttribute("inert", "");
   app.append(root);
+  applyLegacyPresentation();
   root.querySelector('[data-action="close-drawer"]:is(button)')?.focus();
   // Keep only non-secret details attached to this active drawer.
   root._item = Object.fromEntries(
@@ -687,6 +762,10 @@ function updateGenerated() {
   }
 }
 async function lockVault() {
+  if (state.legacyTest) {
+    await logout();
+    return;
+  }
   if (!state.user || state.locked) return;
   const lockVersion = ++epoch;
   authPending = true;
@@ -713,6 +792,14 @@ async function lockVault() {
   }
 }
 async function logout() {
+  if (state.legacyTest) {
+    resetSession();
+    authView = "login";
+    location.hash = "/login";
+    renderAuth();
+    toast("Local API test closed.");
+    return;
+  }
   if (authPending || !state.user) return;
   const wasDemo = state.demo;
   const activeService = service;
@@ -764,6 +851,10 @@ document.addEventListener("click", async (event) => {
   if (!button || button.disabled) return;
   const action = button.dataset.action,
     id = button.dataset.id;
+  if (action === "start-legacy") {
+    await startLegacy();
+    return;
+  }
   if (action === "start-demo") {
     await startDemo();
     return;
@@ -821,6 +912,22 @@ document.addEventListener("click", async (event) => {
   }
   if (action === "lock") {
     await lockVault();
+    return;
+  }
+  if (
+    state.legacyTest &&
+    [
+      "new-item",
+      "edit-item",
+      "delete-item",
+      "favorite",
+      "reveal-password",
+    ].includes(action)
+  ) {
+    toast(
+      "This existing API connection is read-only. That endpoint is not connected yet.",
+      true,
+    );
     return;
   }
   if (action === "new-item") {
@@ -960,7 +1067,7 @@ document.addEventListener("click", async (event) => {
     return;
   }
   if (action === "manage-account") {
-    if (state.demo) {
+    if (state.demo || state.legacyTest) {
       toast(
         "Account settings are available when connected to your authentication server.",
       );
@@ -1190,6 +1297,8 @@ document.addEventListener("submit", (event) => {
       return;
     }
     if (!state.user || state.locked) return;
+    if (state.legacyTest)
+      throw new Error("The existing credential API is read-only.");
     if (form.id === "item-form") {
       const id = form.dataset.id,
         type = form.dataset.type;
@@ -1313,7 +1422,9 @@ modal.addEventListener("click", (event) => {
 });
 window.addEventListener("hashchange", () => {
   if (!state.user) {
-    if (config.enableDemo && location.hash === "#/demo") startDemo();
+    if (config.enableLegacyTestApi && location.hash === "#/test-api")
+      startLegacy();
+    else if (config.enableDemo && location.hash === "#/demo") startDemo();
     return;
   }
   if (state.locked) return;
@@ -1372,6 +1483,10 @@ async function initialize() {
     );
     return;
   }
+  if (config.enableLegacyTestApi && location.hash === "#/test-api") {
+    await startLegacy();
+    return;
+  }
   if (!config.enableDemo && location.hash === "#/demo")
     location.hash = "/login";
   if (config.enableDemo && location.hash === "#/demo") {
@@ -1393,7 +1508,7 @@ async function initialize() {
         ? ""
         : error.status === 404
           ? config.enableDemo
-            ? "Sign-in is currently unavailable. You can explore the demo vault below."
+            ? "Sign-in is currently unavailable. You can use the test options below."
             : "Sign-in is currently unavailable. Please try again later."
           : error.message,
     );

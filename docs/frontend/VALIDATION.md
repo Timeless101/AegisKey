@@ -35,3 +35,16 @@ Uitgevoerd met echte Chromium-rendering via de lokale preview:
 Er draait nog geen implementatie van het nieuwe API-contract. Echte accountregistratie, MFA, emailrecovery, vaultsetup, cookies, Keycloak/OIDC, encryptie, server-side sleutelbeheer en ownership moeten integraal getest worden zodra die backend er is. De frontend vervangt die onderdelen niet.
 
 Dit is geen penetratietest of cryptografische audit. De responsive controles zijn Chromium-viewports, geen fysieke iPhone-/Android-tests. Clipboardrechten verschillen per browser/HTTPS-context; fouten worden getoond. Geautomatiseerde tests en browserchecks van de demo zijn geen bewijs van veilige serverautorisatie.
+
+
+## Aanvulling — 3 november 2026: bestaande credential-API
+
+Alle **11 Node-tests slagen** (`node --test src/client/tests/*.test.js`). De drie aanvullende tests controleren:
+
+- Veldmapping zonder ciphertext/user-ID/extra servervelden; geen verzonnen creation timestamp; ontbrekende datums tonen Unknown.
+- Een echte HTTP-testserver met dezelfde JSON-vorm als de bestaande Python-route: GET `/credentials/3`, lijst en detail, zonder auth-/cookie-/CSRF-headers. Een niet-geconfigureerd ID wordt niet opgevraagd; ontbrekend item geeft 404, geen nepdata.
+- Alleen-lezen adapter: create/update/delete/reveal doen geen HTTP-mutaties. Network-, JSON- en timeoutfouten worden afgehandeld.
+
+Browsercheck met een **fictieve HTTP-fixture**, niet met de database van de gebruiker: item 3 verschijnt in de lijst, details tonen service/username/comment en een melding dat het password versleuteld is. Er zijn geen edit/delete/favorite/reveal-knoppen. Kopieerknop heet Copy username. Leave test keert terug naar de loginpagina, waar Open local test API en Explore demo apart staan.
+
+De persoonlijke lokaal draaiende FastAPI-server van de gebruiker is vanuit de bouwomgeving niet bereikbaar. De actuele route en het model zijn vanaf GitHub gelezen en de aansluiting is tegen die responsevorm getest. De laatste controle op de eigen database gebeurt lokaal met de gedocumenteerde startcommando's. Python en CORS-code zijn niet gewijzigd.
